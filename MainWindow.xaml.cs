@@ -55,11 +55,11 @@ public partial class MainWindow : Window
     private void PopulateFilters()
     {
         if (_allItems == null) return;
-        var filterItems = new SortedSet<string>();
+        var filterItems = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in _allItems)
         {
-            if (item.Quests != null) foreach (var q in item.Quests) filterItems.Add("Quest: " + q);
-            if (item.HideoutModules != null) foreach (var m in item.HideoutModules) filterItems.Add("Hideout: " + m);
+            if (item.Quests != null) foreach (var q in item.Quests) filterItems.Add("Quest: " + q.Name);
+            if (item.HideoutModules != null) foreach (var m in item.HideoutModules) filterItems.Add("Hideout: " + m.Name);
         }
 
         foreach (var filter in filterItems)
@@ -87,12 +87,12 @@ public partial class MainWindow : Window
             if (selectedFilter.StartsWith("Quest: "))
             {
                 var questName = selectedFilter.Replace("Quest: ", "");
-                filtered = filtered.Where(i => i.Quests != null && i.Quests.Contains(questName));
+                filtered = filtered.Where(i => i.Quests != null && i.Quests.Any(q => q.Name.Equals(questName, StringComparison.OrdinalIgnoreCase)));
             }
             else if (selectedFilter.StartsWith("Hideout: "))
             {
                 var moduleName = selectedFilter.Replace("Hideout: ", "");
-                filtered = filtered.Where(i => i.HideoutModules != null && i.HideoutModules.Contains(moduleName));
+                filtered = filtered.Where(i => i.HideoutModules != null && i.HideoutModules.Any(m => m.Name.Equals(moduleName, StringComparison.OrdinalIgnoreCase)));
             }
         }
 

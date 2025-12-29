@@ -42,7 +42,7 @@ namespace EFTLootTracker.Services
             return JsonConvert.DeserializeObject<List<LootItem>>(json) ?? new List<LootItem>();
         }
 
-        public async Task DownloadIconsAsync(List<LootItem> items, Action<int, int> progressCallback = null)
+        public async Task DownloadIconsAsync(List<LootItem> items, Action<int, int>? progressCallback = null)
         {
             await File.AppendAllTextAsync("debug.log", $"Starting icon downloads for {items.Count} items...\n");
             int count = 0;

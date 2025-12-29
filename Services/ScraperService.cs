@@ -152,13 +152,30 @@ namespace EFTLootTracker.Services
                     string linkText = a.InnerText.Trim();
                     if (linkText.Equals("in raid", StringComparison.OrdinalIgnoreCase)) continue;
                     
+                    string targetList = "";
                     if (text.Contains("quest", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!item.Quests.Contains(linkText)) item.Quests.Add(linkText);
+                        targetList = "Quest";
                     }
-                    else if (text.Contains("Hideout", StringComparison.OrdinalIgnoreCase) || text.Contains("level", StringComparison.OrdinalIgnoreCase))
+                    else if (text.Contains("Hideout", StringComparison.OrdinalIgnoreCase) || text.Contains("level", StringComparison.OrdinalIgnoreCase) || a.GetAttributeValue("href", "").Contains("Hideout#Modules"))
                     {
-                        if (!item.HideoutModules.Contains(linkText)) item.HideoutModules.Add(linkText);
+                        targetList = "Hideout";
+                    }
+                    else
+                    {
+                        // Fallback categorization
+                        targetList = isFir ? "Quest" : "Hideout";
+                    }
+
+                    if (targetList == "Quest")
+                    {
+                        if (!item.Quests.Any(q => q.Name == linkText))
+                            item.Quests.Add(new RequirementDetail { Name = linkText, Count = count, IsFir = isFir });
+                    }
+                    else if (targetList == "Hideout")
+                    {
+                        if (!item.HideoutModules.Any(m => m.Name == linkText))
+                            item.HideoutModules.Add(new RequirementDetail { Name = linkText, Count = count, IsFir = isFir });
                     }
                 }
             }

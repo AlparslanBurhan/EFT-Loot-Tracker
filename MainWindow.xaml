@@ -5,8 +5,166 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EFTLootTracker"
         mc:Ignorable="d"
-        Title="Tarkov Inventory Tracker" Height="700" Width="600"
+        Title="Tarkov Inventory Tracker" Height="800" Width="900" 
         Background="#1A1A1A" Foreground="#E0E0E0" WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <!-- ScrollBar Visual Styles -->
+        <Style x:Key="ScrollBarThumb" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="rectangle" Background="#333333" CornerRadius="3" Margin="2,0,2,0"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="rectangle" Property="Background" Value="#444444"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="true">
+                                <Setter TargetName="rectangle" Property="Background" Value="#556644"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ScrollBarButton" TargetType="RepeatButton">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Focusable" Value="false"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="Transparent">
+                            <Path x:Name="Arrow" Fill="#444444" HorizontalAlignment="Center" VerticalAlignment="Center" Data="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="Arrow" Property="Fill" Value="#666666"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="#131313"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid x:Name="Bg" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                            <Grid.RowDefinitions>
+                                <RowDefinition MaxHeight="10"/>
+                                <RowDefinition Height="0.00001*"/>
+                                <RowDefinition MaxHeight="10"/>
+                            </Grid.RowDefinitions>
+                            <RepeatButton Command="{x:Static ScrollBar.LineUpCommand}" Style="{StaticResource ScrollBarButton}" Content="M 0 4 L 4 0 L 8 4 Z"/>
+                            <Track x:Name="PART_Track" Grid.Row="1" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource ScrollBarButton}" Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource ScrollBarButton}" Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource ScrollBarThumb}"/>
+                                </Track.Thumb>
+                            </Track>
+                            <RepeatButton Grid.Row="2" Command="{x:Static ScrollBar.LineDownCommand}" Style="{StaticResource ScrollBarButton}" Content="M 0 0 L 4 4 L 8 0 Z"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox Item Style -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#313131"/>
+                                <Setter Property="Foreground" Value="#AEB286"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#2A2A2A"/>
+                                <Setter Property="Foreground" Value="#556644"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Main ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="MainGrid" SnapsToDevicePixels="true">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition MinWidth="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2" Placement="Bottom" Margin="0" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}">
+                                <Border x:Name="DropDownBorder" Background="#1A1A1A" BorderBrush="#333333" BorderThickness="1" MinWidth="{Binding ActualWidth, ElementName=MainGrid}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer x:Name="DropDownScrollViewer">
+                                        <Grid x:Name="Grid" RenderOptions.ClearTypeHint="Enabled">
+                                            <Canvas x:Name="Canvas" HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0">
+                                                <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=DropDownBorder}" Height="{Binding ActualHeight, ElementName=DropDownBorder}" Width="{Binding ActualWidth, ElementName=DropDownBorder}"/>
+                                            </Canvas>
+                                            <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                            <ToggleButton BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="2" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="templateRoot" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="5" CornerRadius="2">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                <Path x:Name="Arrow" Grid.Column="1" Data="M0,0 L4,4 L8,0 Z" Fill="#666666" HorizontalAlignment="Center" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="templateRoot" Property="Background" Value="#252525"/>
+                                                <Setter TargetName="Arrow" Property="Fill" Value="#E0E0E0"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Grid.Column="0" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Content="{TemplateBinding SelectionBoxItem}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -30,15 +188,8 @@
                 <TextBlock x:Name="SearchPlaceholder" Grid.Column="1" Text="Eşya Ara..." IsHitTestVisible="False" 
                            VerticalAlignment="Center" Foreground="#505050" FontSize="14" Visibility="Visible"/>
                 
-                <ComboBox x:Name="FilterCombo" Grid.Column="2" Margin="10,0,0,0" Background="#1A1A1A" Foreground="#E0E0E0"
-                          BorderBrush="#333333" BorderThickness="1" SelectionChanged="FilterCombo_SelectionChanged"
-                          Padding="5,2">
-                    <ComboBox.Resources>
-                        <Style TargetType="ComboBoxItem">
-                            <Setter Property="Background" Value="#1A1A1A"/>
-                            <Setter Property="Foreground" Value="#E0E0E0"/>
-                        </Style>
-                    </ComboBox.Resources>
+                <ComboBox x:Name="FilterCombo" Grid.Column="2" Margin="10,0,0,0" 
+                          SelectionChanged="FilterCombo_SelectionChanged">
                     <ComboBoxItem Content="Tümü" IsSelected="True"/>
                 </ComboBox>
             </Grid>
@@ -87,35 +238,53 @@
                             
                             <StackPanel Orientation="Horizontal" Margin="0,3,0,5">
                                 <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#666666" Margin="0,0,10,0"/>
-                                <TextBlock Text="{Binding Quests[0], StringFormat='Görev: {0}'}" FontSize="10" Foreground="#556644" Opacity="0.8">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Quests.Count}" Value="0">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
                             </StackPanel>
                             
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{Binding Requirements.Total, StringFormat='Toplam Gerekli: {0}'}" FontSize="11" Foreground="#8B6040"/>
-                                    <ProgressBar Value="{Binding Requirements.Total}" Maximum="20" Height="5" Background="#111111" Foreground="#8B6040" Margin="0,4,12,0" BorderThickness="0"/>
+                            <StackPanel Margin="0,5,0,0">
+                                <!-- Quests Section -->
+                                <StackPanel Visibility="{Binding HasQuests, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="Quests:" FontSize="10" Foreground="#666666" FontWeight="Bold" Margin="0,0,0,2"/>
+                                    <ItemsControl ItemsSource="{Binding Quests}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
+                                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#AEB286"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Requirements.FoundInRaid, StringFormat='Raid\'de Bulunmalı: {0}'}" FontSize="11" Foreground="#556644"/>
-                                    <ProgressBar Value="{Binding Requirements.FoundInRaid}" Maximum="{Binding Requirements.Total}" Height="5" Background="#111111" Foreground="#556644" Margin="0,4,0,0" BorderThickness="0"/>
+                                <!-- Hideout Section -->
+                                <StackPanel Visibility="{Binding HasHideoutModules, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,5,0,0">
+                                    <TextBlock Text="Hideout:" FontSize="10" Foreground="#666666" FontWeight="Bold" Margin="0,0,0,2"/>
+                                    <ItemsControl ItemsSource="{Binding HideoutModules}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#2A1A1A" BorderBrush="#8B4040" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
+                                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#E09090"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
-                            </Grid>
+
+                                <!-- Summary Stats -->
+                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                    <TextBlock Text="{Binding Requirements.Total, StringFormat='Toplam: {0}'}" FontSize="10" Foreground="#888888" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding Requirements.FoundInRaid, StringFormat='FIR: {0}'}" FontSize="10" Foreground="#556644"/>
+                                </StackPanel>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

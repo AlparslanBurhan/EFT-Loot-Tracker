@@ -9,6 +9,7 @@ namespace EFTLootTracker.Services
     {
         private readonly ScraperService _scraper;
         private readonly DataService _data;
+        private bool _isUpdating = false;
 
         public event Action<string>? OnStatusChanged;
         public event Action<int, int>? OnProgressChanged;
@@ -21,8 +22,11 @@ namespace EFTLootTracker.Services
 
         public async Task<List<LootItem>> InitializeDataAsync()
         {
-            await System.IO.File.AppendAllTextAsync("debug.log", "InitializeDataAsync started\n");
-            OnStatusChanged?.Invoke("Veriler kontrol ediliyor...");
+            if (_isUpdating) return new List<LootItem>();
+            _isUpdating = true;
+
+            try {
+                OnStatusChanged?.Invoke("Veriler kontrol ediliyor...");
             
             var localItems = await _data.LoadItemsAsync();
             var lastUpdate = _data.GetLastUpdateTime();
@@ -52,7 +56,11 @@ namespace EFTLootTracker.Services
             }
 
             OnStatusChanged?.Invoke("Veriler güncel.");
+            _isUpdating = false;
             return localItems;
+            } finally {
+                _isUpdating = false;
+            }
         }
     }
 }
