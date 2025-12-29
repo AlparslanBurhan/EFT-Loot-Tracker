@@ -1,0 +1,28 @@
+InitializeDataAsync started
+Found 11 tables
+Processing table with 23 rows
+Table processed. Items found: 22
+Processing table with 18 rows
+Table processed. Items found: 17
+Processing table with 46 rows
+Table processed. Items found: 45
+Processing table with 9 rows
+Table processed. Items found: 8
+Processing table with 19 rows
+Table processed. Items found: 18
+Processing table with 18 rows
+Table processed. Items found: 17
+Processing table with 12 rows
+Table processed. Items found: 11
+Processing table with 21 rows
+Table processed. Items found: 20
+Processing table with 44 rows
+Table processed. Items found: 43
+Processing table with 17 rows
+Table processed. Items found: 16
+Processing table with 18 rows
+Table processed. Items found: 17
+Total items found: 234
+Starting icon downloads for 234 items...
+Icon downloads completed.
+Saved 234 items to C:\Users\alpar\Desktop\EFT\data\manifest.json

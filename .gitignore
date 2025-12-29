@@ -1,0 +1,36 @@
+# .NET
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.user
+*.suo
+*.vspscc
+*.vssscc
+*.sln.docstates
+*.userosscache
+*.sln.DotSettings.user
+
+# Visual Studio
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+
+# Package Manager
+packages/
+.nuget/
+
+# App Data / Cache
+data/
+cache/
+assets/icons/
+*.json
+!appsettings.json
+
+# OS files
+Thumbs.db
+desktop.ini
