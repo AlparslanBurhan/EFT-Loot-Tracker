@@ -35,7 +35,7 @@
 1. **Gereksinimler**: Bilgisayarınızda [.NET 10 SDK](https://dotnet.microsoft.com/download) kurulu olmalıdır.
 2. **Klonlama**:
    ```bash
-   git clone https://github.com/AlparslanBurhan/EFT-Item-Tracker.git
+   git clone https://github.com/AlparslanBurhan/EFT-Loot-Tracker.git
    ```
 3. **Çalıştırma**: Proje dizininde terminali açın:
    ```bash
