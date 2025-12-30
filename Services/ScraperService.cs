@@ -74,7 +74,6 @@ namespace EFTLootTracker.Services
             }
             catch
             {
-                // Hata yönetimi - sessizce devam
             }
 
             return items;

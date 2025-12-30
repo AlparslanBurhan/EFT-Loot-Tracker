@@ -29,7 +29,6 @@ namespace EFTLootTracker.Services
                 var json = JsonConvert.SerializeObject(items, Formatting.Indented);
                 await File.WriteAllTextAsync(ManifestPath, json);
             } catch {
-                // Silent error handling
             }
         }
 
@@ -39,7 +38,6 @@ namespace EFTLootTracker.Services
                 var json = JsonConvert.SerializeObject(items, Formatting.Indented);
                 await File.WriteAllTextAsync(CollectorManifestPath, json);
             } catch {
-                // Silent error handling
             }
         }
 
@@ -81,7 +79,6 @@ namespace EFTLootTracker.Services
                         await File.WriteAllBytesAsync(fullPath, bytes);
                     }
                 } catch {
-                    // Silent error handling
                 } finally {
                     System.Threading.Interlocked.Increment(ref count);
                     progressCallback?.Invoke(count, total);

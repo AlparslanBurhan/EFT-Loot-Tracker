@@ -123,11 +123,6 @@ public partial class MainWindow : Window
         ItemsListBox.ItemsSource = result;
     }
 
-    private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // Tab changed - no action needed
-    }
-
     private void FilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplyFilters();

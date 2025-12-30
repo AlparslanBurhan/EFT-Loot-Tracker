@@ -27,8 +27,8 @@ namespace EFTLootTracker.Services
 
             try {
                 OnStatusChanged?.Invoke("Loot verileri kontrol ediliyor...");
-            
-            var localItems = await _data.LoadItemsAsync();
+
+                var localItems = await _data.LoadItemsAsync();
             var lastUpdate = _data.GetLastUpdateTime();
 
             // Check if we need to update (older than 24h or no data)
@@ -56,7 +56,6 @@ namespace EFTLootTracker.Services
             }
 
             OnStatusChanged?.Invoke($"Loot verileri yüklendi ({localItems.Count} öğe)");
-            _isUpdating = false;
             return localItems;
             } finally {
                 _isUpdating = false;
@@ -70,7 +69,7 @@ namespace EFTLootTracker.Services
 
             try {
                 OnStatusChanged?.Invoke("Collector verileri kontrol ediliyor...");
-            
+
                 var localItems = await _data.LoadCollectorItemsAsync();
                 var lastUpdate = _data.GetCollectorLastUpdateTime();
 
@@ -98,7 +97,6 @@ namespace EFTLootTracker.Services
                 }
 
                 OnStatusChanged?.Invoke($"Collector verileri yüklendi ({localItems.Count} öğe)");
-                _isUpdating = false;
                 return localItems;
             } finally {
                 _isUpdating = false;
