@@ -14,12 +14,25 @@ namespace EFTLootTracker.Services
         private const string WikiBaseUrl = "https://escapefromtarkov.fandom.com";
         private const string LootUrl = "https://escapefromtarkov.fandom.com/wiki/Loot";
         private readonly HttpClient _httpClient;
+        private readonly System.Net.CookieContainer _cookieContainer;
 
         public ScraperService()
         {
-            var handler = new HttpClientHandler();
+            _cookieContainer = new System.Net.CookieContainer();
+            var handler = new HttpClientHandler
+            {
+                CookieContainer = _cookieContainer,
+                UseCookies = true,
+                AllowAutoRedirect = true
+            };
+            
             _httpClient = new HttpClient(handler);
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            _httpClient.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
+            _httpClient.DefaultRequestHeaders.Add("DNT", "1");
+            _httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            _httpClient.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
         }
 
         public async Task<List<LootItem>> ScrapeAllItemsAsync()
@@ -34,44 +47,34 @@ namespace EFTLootTracker.Services
                 var tables = doc.DocumentNode.SelectNodes("//table[contains(@class, 'wikitable')]");
                 if (tables == null)
                 {
-                    await System.IO.File.AppendAllTextAsync("debug.log", "No wikitable found via XPath\n");
                     return items;
                 }
-
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Found {tables.Count} tables\n");
 
                 foreach (var table in tables)
                 {
                     var rows = table.SelectNodes(".//tr");
                     if (rows == null || rows.Count < 2) continue;
 
-                    await System.IO.File.AppendAllTextAsync("debug.log", $"Processing table with {rows.Count} rows\n");
                     string category = GetCategory(table);
-                    int tableItems = 0;
 
                     foreach (var row in rows)
                     {
-                        // Some columns use <th>, others <td>. Get both.
                         var cells = row.SelectNodes(".//*[self::td or self::th]");
                         if (cells == null || cells.Count < 5) continue; 
 
-                        // Skip if it's the header row (contains "Icon" or "Name" text in first cells)
                         if (cells[0].InnerText.Contains("Icon") || cells[1].InnerText.Contains("Name")) continue;
 
                         var item = ParseRow(cells, category);
                         if (item != null && !string.IsNullOrEmpty(item.Name))
                         {
                             items.Add(item);
-                            tableItems++;
                         }
                     }
-                    await System.IO.File.AppendAllTextAsync("debug.log", $"Table processed. Items found: {tableItems}\n");
                 }
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Total items found: {items.Count}\n");
             }
-            catch (Exception ex)
+            catch
             {
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Scrape Error: {ex.Message}\n{ex.StackTrace}\n");
+                // Hata yönetimi - sessizce devam
             }
 
             return items;
@@ -211,65 +214,63 @@ namespace EFTLootTracker.Services
             var items = new List<LootItem>();
             try
             {
-                var response = await _httpClient.GetAsync("https://escapefromtarkov.fandom.com/wiki/Collector");
+                string html = "";
+                string staticPath = "data/collector_static.html";
                 
-                var html = await response.Content.ReadAsStringAsync();
+                if (System.IO.File.Exists(staticPath))
+                {
+                    html = await System.IO.File.ReadAllTextAsync(staticPath);
+                }
+                else
+                {
+                    return items; // Statik dosya yoksa boş döndür
+                }
                 
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
 
-                // Find the table inside div.table-wide > div.table-wide-inner
-                // This comes after an h2 heading
-                var tableContainer = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'table-wide')]//div[contains(@class, 'table-wide-inner')]//table");
+                // Look for table with class "table-progress-tracking" or id that starts with "tpt-"
+                var tableContainer = doc.DocumentNode.SelectSingleNode("//table[contains(@class, 'table-progress-tracking')]") 
+                                     ?? doc.DocumentNode.SelectSingleNode("//table[contains(@id, 'tpt-')]")
+                                     ?? doc.DocumentNode.SelectSingleNode("//table[contains(@class, 'wikitable')]");
                 
                 if (tableContainer == null)
                 {
-                    await System.IO.File.AppendAllTextAsync("debug.log", "Could not find table-wide-inner table\n");
                     return items;
                 }
 
-                await System.IO.File.AppendAllTextAsync("debug.log", "Found table-wide-inner table\n");
-
-                // Get all rows from tbody
                 var rows = tableContainer.SelectNodes(".//tbody/tr");
                 if (rows == null || rows.Count == 0)
                 {
-                    await System.IO.File.AppendAllTextAsync("debug.log", "No rows found in tbody\n");
                     return items;
                 }
-
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Found {rows.Count} rows in tbody\n");
 
                 foreach (var row in rows)
                 {
                     try
                     {
                         var cells = row.SelectNodes(".//td");
-                        if (cells == null || cells.Count < 4)
+                        // Skip header rows or rows with insufficient cells
+                        // Collector table has 6 columns: checkbox, icon, name, amount, requirement, FIR
+                        if (cells == null || cells.Count < 5)
                         {
-                            await System.IO.File.AppendAllTextAsync("debug.log", $"Row has insufficient cells: {cells?.Count ?? 0}\n");
                             continue;
                         }
 
                         var item = new LootItem { Category = "Collector" };
 
-                        // Icon: First td contains span.mw-default-size with img
-                        var iconSpan = cells[0].SelectSingleNode(".//span[contains(@class, 'mw-default-size')]//img");
-                        if (iconSpan == null)
-                        {
-                            // Try without the span class requirement
-                            iconSpan = cells[0].SelectSingleNode(".//img");
-                        }
+                        // Icon: Second cell (index 1) - first cell is checkbox
+                        var iconImg = cells[1].SelectSingleNode(".//img");
                         
-                        if (iconSpan != null)
+                        if (iconImg != null)
                         {
-                            item.IconUrl = iconSpan.GetAttributeValue("data-src", iconSpan.GetAttributeValue("src", ""));
+                            item.IconUrl = iconImg.GetAttributeValue("data-src", iconImg.GetAttributeValue("src", ""));
                             if (item.IconUrl.Contains("/revision/"))
                                 item.IconUrl = item.IconUrl.Split("/revision/")[0];
                         }
 
-                        // Name: Second td contains <a> tag
-                        var nameLink = cells[1].SelectSingleNode(".//a");
+                        // Name: Third cell (index 2)
+                        var nameLink = cells[2].SelectSingleNode(".//a[@href]");
                         if (nameLink != null)
                         {
                             item.Name = nameLink.InnerText.Trim();
@@ -277,37 +278,35 @@ namespace EFTLootTracker.Services
                         }
                         else
                         {
-                            item.Name = cells[1].InnerText.Trim();
+                            item.Name = cells[2].InnerText.Trim();
                         }
 
                         if (string.IsNullOrEmpty(item.Name))
                         {
-                            await System.IO.File.AppendAllTextAsync("debug.log", "Row has no name, skipping\n");
                             continue;
                         }
 
-                        // Amount: Third td contains just the number
-                        var amountText = cells[2].InnerText.Trim();
-                        if (int.TryParse(Regex.Match(amountText, @"\d+").Value, out int amount))
+                        // Amount: Fourth cell (index 3)
+                        int amount = 1;
+                        var amountText = cells[3].InnerText.Trim();
+                        if (int.TryParse(amountText, out int parsed))
                         {
-                            item.Requirements.Total = amount;
+                            amount = parsed;
                         }
-                        else
-                        {
-                            item.Requirements.Total = 1; // Default to 1 if not found
-                        }
+                        item.Requirements.Total = amount;
 
-                        // Find in Raid: Look for td with font color="red" and "Yes" text
-                        // This is typically the 5th td (index 4)
+                        // Find in Raid: Last cell (index 5) contains <font color="red">Yes</font>
                         bool isFir = false;
-                        if (cells.Count > 4)
+                        if (cells.Count > 5)
                         {
-                            var firCell = cells[4];
-                            var firHtml = firCell.InnerHtml.ToLower();
-                            var firText = firCell.InnerText.ToLower();
+                            var firCell = cells[5];
+                            var firHtml = firCell.InnerHtml;
+                            var firText = firCell.InnerText.Trim().ToLower();
                             
-                            // Check for red "Yes"
-                            isFir = firText.Contains("yes") && firHtml.Contains("color=\"red\"");
+                            if (firText == "yes" && (firHtml.Contains("color=\"red\"") || firHtml.Contains("color:red")))
+                            {
+                                isFir = true;
+                            }
                         }
 
                         if (isFir)
@@ -315,7 +314,6 @@ namespace EFTLootTracker.Services
                             item.Requirements.FoundInRaid = item.Requirements.Total;
                         }
 
-                        // Add a Quest Detail for UI consistency
                         item.Quests.Add(new RequirementDetail 
                         { 
                             Name = "Collector", 
@@ -324,19 +322,16 @@ namespace EFTLootTracker.Services
                         });
 
                         items.Add(item);
-                        await System.IO.File.AppendAllTextAsync("debug.log", $"Added: {item.Name} (Amount: {item.Requirements.Total}, FIR: {isFir})\n");
                     }
-                    catch (Exception rowEx)
+                    catch
                     {
-                        await System.IO.File.AppendAllTextAsync("debug.log", $"Error processing row: {rowEx.Message}\n");
+                        // Skip problematic rows
                     }
                 }
-                
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Total Collector items: {items.Count}\n");
             }
-            catch (Exception ex)
+            catch
             {
-                await System.IO.File.AppendAllTextAsync("debug.log", $"Collector Scrape Error: {ex.Message}\n{ex.StackTrace}\n");
+                // Return empty list on error
             }
 
             return items;

@@ -26,7 +26,7 @@ namespace EFTLootTracker.Services
             _isUpdating = true;
 
             try {
-                OnStatusChanged?.Invoke("Veriler kontrol ediliyor...");
+                OnStatusChanged?.Invoke("Loot verileri kontrol ediliyor...");
             
             var localItems = await _data.LoadItemsAsync();
             var lastUpdate = _data.GetLastUpdateTime();
@@ -34,28 +34,28 @@ namespace EFTLootTracker.Services
             // Check if we need to update (older than 24h or no data)
             if (localItems.Count == 0 || (DateTime.Now - lastUpdate).TotalHours > 24)
             {
-                OnStatusChanged?.Invoke("Güncel veriler Wiki'den çekiliyor...");
+                OnStatusChanged?.Invoke("Loot verileri Wiki'den çekiliyor...");
                 var remoteItems = await _scraper.ScrapeAllItemsAsync();
 
                 if (remoteItems != null && remoteItems.Count > 0)
                 {
-                    OnStatusChanged?.Invoke("Simgeler indiriliyor...");
+                    OnStatusChanged?.Invoke($"Loot simgeleri indiriliyor... ({remoteItems.Count} öğe)");
                     await _data.DownloadIconsAsync(remoteItems, (current, total) => {
                         OnProgressChanged?.Invoke(current, total);
                     });
 
                     await _data.SaveItemsAsync(remoteItems);
-                    OnStatusChanged?.Invoke("Veriler başarıyla güncellendi.");
+                    OnStatusChanged?.Invoke($"Loot verileri güncellendi ({remoteItems.Count} öğe)");
                     return remoteItems;
                 }
                 else
                 {
-                    OnStatusChanged?.Invoke("Hata: Wiki'den veri çekilemedi.");
+                    OnStatusChanged?.Invoke("Hata: Wiki'den loot verileri çekilemedi");
                     return localItems;
                 }
             }
 
-            OnStatusChanged?.Invoke("Veriler güncel.");
+            OnStatusChanged?.Invoke($"Loot verileri yüklendi ({localItems.Count} öğe)");
             _isUpdating = false;
             return localItems;
             } finally {
@@ -76,28 +76,29 @@ namespace EFTLootTracker.Services
 
                 if (localItems.Count == 0 || (DateTime.Now - lastUpdate).TotalHours > 168) // Update collector weekly
                 {
-                    OnStatusChanged?.Invoke("Collector verileri Wiki'den çekiliyor...");
+                    OnStatusChanged?.Invoke("Collector verileri yükleniyor...");
                     var remoteItems = await _scraper.ScrapeCollectorItemsAsync();
 
                     if (remoteItems != null && remoteItems.Count > 0)
                     {
-                        OnStatusChanged?.Invoke("Collector simgeleri indiriliyor...");
+                        OnStatusChanged?.Invoke($"Collector simgeleri indiriliyor... ({remoteItems.Count} öğe)");
                         await _data.DownloadIconsAsync(remoteItems, (current, total) => {
                             OnProgressChanged?.Invoke(current, total);
                         });
 
                         await _data.SaveCollectorItemsAsync(remoteItems);
-                        OnStatusChanged?.Invoke("Collector verileri güncellendi.");
+                        OnStatusChanged?.Invoke($"Collector verileri güncellendi ({remoteItems.Count} öğe)");
                         return remoteItems;
                     }
                     else
                     {
-                        OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi.");
+                        OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi");
                         return localItems;
                     }
                 }
 
-                OnStatusChanged?.Invoke("Collector verileri güncel.");
+                OnStatusChanged?.Invoke($"Collector verileri yüklendi ({localItems.Count} öğe)");
+                _isUpdating = false;
                 return localItems;
             } finally {
                 _isUpdating = false;

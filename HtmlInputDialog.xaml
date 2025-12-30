@@ -1,0 +1,110 @@
+<Window x:Class="EFTLootTracker.HtmlInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Collector HTML Güncelle" Height="600" Width="700"
+        Background="#1A1A1A" Foreground="#E0E0E0" WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="Collector Sayfa Kaynağını Yapıştırın" FontSize="18" FontWeight="Bold" Foreground="#AEB286" Margin="0,0,0,8"/>
+            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#888888">
+                <Run Text="1. Tarayıcınızda Collector quest sayfasını açın:"/>
+                <LineBreak/>
+                <Run Text="   https://escapefromtarkov.fandom.com/wiki/Collector" Foreground="#6AB0DE"/>
+                <LineBreak/>
+                <Run Text="2. Sayfaya sağ tıklayıp 'Sayfa Kaynağını Görüntüle' seçin"/>
+                <LineBreak/>
+                <Run Text="3. Tüm HTML'i kopyalayın (Ctrl+A, Ctrl+C)"/>
+                <LineBreak/>
+                <Run Text="4. Aşağıdaki kutuya yapıştırın (Ctrl+V)"/>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- Instructions -->
+        <Border Grid.Row="1" Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,10">
+            <TextBlock Text="⚠️ Not: Tüm HTML kodunu yapıştırdığınızdan emin olun. Kısmi yapıştırma veri hatalarına neden olur." 
+                       FontSize="11" Foreground="#E0C080" TextWrapping="Wrap"/>
+        </Border>
+
+        <!-- HTML Input -->
+        <Border Grid.Row="2" Background="#222222" BorderBrush="#333333" BorderThickness="1" CornerRadius="4" Padding="0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <TextBox x:Name="HtmlTextBox" 
+                         Background="Transparent" 
+                         Foreground="#E0E0E0" 
+                         BorderThickness="0"
+                         TextWrapping="NoWrap"
+                         AcceptsReturn="True"
+                         FontFamily="Consolas"
+                         FontSize="11"
+                         Padding="10"
+                         CaretBrush="#556644"
+                         VerticalScrollBarVisibility="Disabled"
+                         HorizontalScrollBarVisibility="Disabled"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="İptal" Width="100" Height="32" Margin="0,0,10,0" Click="Cancel_Click"
+                    Background="#2A2A2A" Foreground="#E0E0E0" BorderBrush="#333333" BorderThickness="1" 
+                    FontSize="13" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" 
+                                            CornerRadius="4" Padding="12,6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#333333"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+            
+            <Button Content="✓ Kaydet" Width="100" Height="32" Click="OK_Click"
+                    Background="#2A2A1A" Foreground="#AEB286" BorderBrush="#556644" BorderThickness="1" 
+                    FontSize="13" FontWeight="Bold" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" 
+                                            CornerRadius="4" Padding="12,6">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#333333"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

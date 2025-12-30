@@ -28,9 +28,8 @@ namespace EFTLootTracker.Services
             try {
                 var json = JsonConvert.SerializeObject(items, Formatting.Indented);
                 await File.WriteAllTextAsync(ManifestPath, json);
-                await File.AppendAllTextAsync("debug.log", $"Saved {items.Count} items to {Path.GetFullPath(ManifestPath)}\n");
-            } catch (Exception ex) {
-                await File.AppendAllTextAsync("debug.log", $"Save Error: {ex.Message}\n");
+            } catch {
+                // Silent error handling
             }
         }
 
@@ -39,9 +38,8 @@ namespace EFTLootTracker.Services
             try {
                 var json = JsonConvert.SerializeObject(items, Formatting.Indented);
                 await File.WriteAllTextAsync(CollectorManifestPath, json);
-                await File.AppendAllTextAsync("debug.log", $"Saved {items.Count} collector items to {Path.GetFullPath(CollectorManifestPath)}\n");
-            } catch (Exception ex) {
-                await File.AppendAllTextAsync("debug.log", $"Collector Save Error: {ex.Message}\n");
+            } catch {
+                // Silent error handling
             }
         }
 
@@ -65,7 +63,6 @@ namespace EFTLootTracker.Services
 
         public async Task DownloadIconsAsync(List<LootItem> items, Action<int, int>? progressCallback = null)
         {
-            await File.AppendAllTextAsync("debug.log", $"Starting icon downloads for {items.Count} items...\n");
             int count = 0;
             int total = items.Count;
             
@@ -83,8 +80,8 @@ namespace EFTLootTracker.Services
                         var bytes = await _httpClient.GetByteArrayAsync(item.IconUrl);
                         await File.WriteAllBytesAsync(fullPath, bytes);
                     }
-                } catch (Exception ex) {
-                    await File.AppendAllTextAsync("debug.log", $"Icon Fallacy ({item.Name}): {ex.Message}\n");
+                } catch {
+                    // Silent error handling
                 } finally {
                     System.Threading.Interlocked.Increment(ref count);
                     progressCallback?.Invoke(count, total);
@@ -93,7 +90,6 @@ namespace EFTLootTracker.Services
             });
 
             await Task.WhenAll(tasks);
-            await File.AppendAllTextAsync("debug.log", "Icon downloads completed.\n");
         }
 
         private string GetSafeFilename(string filename)

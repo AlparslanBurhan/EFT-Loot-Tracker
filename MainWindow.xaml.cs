@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,18 +42,28 @@ public partial class MainWindow : Window
     {
         try
         {
+            StatusText.Foreground = System.Windows.Media.Brushes.LightGray;
+            UpdateProgress.Visibility = Visibility.Visible;
+            
+            // Load Loot items
             _allItems = await _updateManager.InitializeDataAsync();
+            
+            // Load Collector items
             _collectorItems = await _updateManager.InitializeCollectorDataAsync();
 
             PopulateFilters();
             ApplyFilters();
             
             CollectorListBox.ItemsSource = _collectorItems;
+            
+            // Hide progress bar and show final status
             UpdateProgress.Visibility = Visibility.Collapsed;
-            UpdateItemCount();
+            StatusText.Text = $"Loot: {_allItems.Count} öğe • Collector: {_collectorItems.Count} öğe • Veriler güncel";
+            StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
         }
         catch (Exception ex)
         {
+            UpdateProgress.Visibility = Visibility.Collapsed;
             StatusText.Text = "Hata: " + ex.Message;
             StatusText.Foreground = System.Windows.Media.Brushes.Red;
         }
@@ -110,29 +121,11 @@ public partial class MainWindow : Window
 
         var result = filtered.ToList();
         ItemsListBox.ItemsSource = result;
-        UpdateItemCount();
     }
 
     private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.Source is TabControl)
-        {
-            UpdateItemCount();
-        }
-    }
-
-    private void UpdateItemCount()
-    {
-        if (ItemCountText == null) return;
-
-        if (ItemsListBox != null && ItemsListBox.IsVisible)
-        {
-            ItemCountText.Text = $"{ItemsListBox.Items.Count} öğe listeleniyor";
-        }
-        else if (CollectorListBox != null && CollectorListBox.IsVisible)
-        {
-            ItemCountText.Text = $"{CollectorListBox.Items.Count} öğe listeleniyor";
-        }
+        // Tab changed - no action needed
     }
 
     private void FilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -156,5 +149,68 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(SearchBox.Text))
             SearchPlaceholder.Visibility = Visibility.Visible;
+    }
+
+    private void CollectorSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (CollectorSearchPlaceholder == null) return;
+        CollectorSearchPlaceholder.Visibility = string.IsNullOrEmpty(CollectorSearchBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+        ApplyCollectorFilter();
+    }
+
+    private void CollectorSearchBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        CollectorSearchPlaceholder.Visibility = Visibility.Collapsed;
+    }
+
+    private void CollectorSearchBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(CollectorSearchBox.Text))
+            CollectorSearchPlaceholder.Visibility = Visibility.Visible;
+    }
+
+    private void ApplyCollectorFilter()
+    {
+        if (_collectorItems == null || CollectorListBox == null) return;
+
+        var searchText = CollectorSearchBox.Text;
+        var filtered = _collectorItems.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(searchText))
+        {
+            filtered = filtered.Where(i => i.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        CollectorListBox.ItemsSource = filtered.ToList();
+    }
+
+    private async void UpdateCollectorButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new HtmlInputDialog();
+        if (dialog.ShowDialog() == true)
+        {
+            try
+            {
+                var htmlContent = dialog.HtmlContent;
+                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "collector_static.html");
+                
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                await File.WriteAllTextAsync(filePath, htmlContent);
+                
+                StatusText.Text = "HTML dosyası güncellendi. Veriler yeniden yükleniyor...";
+                StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+                
+                // Reload Collector data
+                _collectorItems = await _updateManager.InitializeCollectorDataAsync();
+                ApplyCollectorFilter();
+                
+                StatusText.Text = "Collector verileri başarıyla güncellendi!";
+            }
+            catch (Exception ex)
+            {
+                StatusText.Text = "Hata: " + ex.Message;
+                StatusText.Foreground = System.Windows.Media.Brushes.Red;
+            }
+        }
     }
 }
