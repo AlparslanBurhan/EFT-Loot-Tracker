@@ -211,6 +211,58 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Custom CheckBox Style -->
+        <Style x:Key="FlatCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="CheckBoxBorder" 
+                                    Width="16" Height="16" 
+                                    Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                    CornerRadius="3">
+                                <Path x:Name="CheckMark" 
+                                      Data="M 3,8 L 6,11 L 13,4" 
+                                      Stroke="#AEB286" 
+                                      StrokeThickness="2" 
+                                      Visibility="Collapsed"
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="1" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#AEB286"/>
+                                <Setter TargetName="CheckBoxBorder" Property="Background" Value="#2A2A2A"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#556644"/>
+                                <Setter TargetName="CheckBoxBorder" Property="Background" Value="#333333"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="10">
@@ -241,6 +293,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="2*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.5"/>
@@ -250,7 +303,12 @@
                             <TextBlock x:Name="SearchPlaceholder" Grid.Column="1" Text="Eşya Ara..." IsHitTestVisible="False" 
                                        VerticalAlignment="Center" Foreground="#505050" FontSize="14" Visibility="Visible"/>
                             
-                            <ComboBox x:Name="FilterCombo" Grid.Column="2" Margin="10,0,0,0" 
+                            <CheckBox x:Name="AlwaysOnTopCheckBox" Grid.Column="2" Content="Her zaman üsste" 
+                                      VerticalAlignment="Center" Margin="10,0,5,0" Foreground="#E0E0E0"
+                                      Checked="AlwaysOnTopCheckBox_Checked" Unchecked="AlwaysOnTopCheckBox_Unchecked"
+                                      Style="{StaticResource FlatCheckBoxStyle}"/>
+
+                            <ComboBox x:Name="FilterCombo" Grid.Column="3" Margin="5,0,0,0" 
                                       SelectionChanged="FilterCombo_SelectionChanged">
                                 <ComboBoxItem Content="Tümü" IsSelected="True"/>
                             </ComboBox>

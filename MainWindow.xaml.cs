@@ -42,6 +42,10 @@ public partial class MainWindow : Window
     {
         try
         {
+            // Check for updates first
+            var updater = new AppUpdater();
+            await updater.CheckAndInstallUpdateAsync();
+
             StatusText.Foreground = System.Windows.Media.Brushes.LightGray;
             UpdateProgress.Visibility = Visibility.Visible;
             
@@ -207,5 +211,15 @@ public partial class MainWindow : Window
                 StatusText.Foreground = System.Windows.Media.Brushes.Red;
             }
         }
+    }
+
+    private void AlwaysOnTopCheckBox_Checked(object sender, RoutedEventArgs e)
+    {
+        this.Topmost = true;
+    }
+
+    private void AlwaysOnTopCheckBox_Unchecked(object sender, RoutedEventArgs e)
+    {
+        this.Topmost = false;
     }
 }
