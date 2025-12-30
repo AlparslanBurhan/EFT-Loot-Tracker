@@ -1,7 +1,7 @@
 # EFT-Loot-Tracker
 
 <div align="center">
-  <img src="assets/EFT-Loot-Tracker.ico" alt="EFT-Loot-Tracker Logo" width="128" height="128">
+  <img src="assets/EFT-Loot-Tracker.png" alt="EFT-Loot-Tracker Logo" width="128" height="128">
   
   **Escape from Tarkov** oyuncuları için profesyonel eşya takip uygulaması
   
@@ -259,10 +259,8 @@ EFT-Loot-Tracker/
 ├── 📄 HtmlInputDialog.xaml.cs       # Dialog mantığı
 ├── 📄 AssemblyInfo.cs               # Assembly metadata
 ├── 📄 EFTLootTracker.csproj         # Proje dosyası
-├── 📄 setup.iss                     # Inno Setup installer script
 ├── 📄 LICENSE.txt                   # MIT Lisans (TR/EN)
 ├── 📄 README.md                     # Bu dosya
-├── 📄 INSTALLER_README.md           # Installer dokümantasyonu
 │
 ├── 📂 Models/                       # Veri modelleri
 │   └── 📄 LootItem.cs              # Eşya veri yapısı
@@ -440,12 +438,20 @@ C:\ProgramData\EFT-Loot-Tracker/
 dotnet build -c Release
 ```
 
-2. **Inno Setup ile Derle**:
+2. **Inno Setup Scripti Oluştur**:
+- Proje için bir `setup.iss` dosyası oluşturun
+- Kurulum ayarlarını yapılandırın:
+  - Uygulama adı: `EFT-Loot-Tracker`
+  - Kurulum yolu: `{commonappdata}\EFT-Loot-Tracker`
+  - Lisans dosyası: `LICENSE.txt`
+  - İkon: `assets\EFT-Loot-Tracker.ico`
+
+3. **Inno Setup ile Derle**:
 - Inno Setup'ı açın
-- `setup.iss` dosyasını yükleyin
+- Oluşturduğunuz `setup.iss` dosyasını yükleyin
 - **Build** → **Compile** seçeneğine tıklayın
 
-3. **Çıktı**:
+4. **Çıktı**:
 - Installer: `installer_output/EFT-Loot-Tracker_Setup_v1.0.0.exe`
 - Boyut: ~5-10 MB (veriler dahil değil)
 
@@ -459,7 +465,7 @@ dotnet build -c Release
 - ✅ Otomatik klasör yapısı oluşturma
 - ✅ Tüm kullanıcılar için erişim izinleri
 
-Detaylı bilgi: [INSTALLER_README.md](INSTALLER_README.md)
+**Not:** Installer script dosyası (`setup.iss`) repository'de bulunmamaktadır. Yukarıdaki bilgileri kullanarak kendi script'inizi oluşturabilirsiniz.
 
 ---
 
