@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using EFTLootTracker.Models;
 using EFTLootTracker.Services;
 
@@ -36,6 +38,65 @@ public partial class MainWindow : Window
         };
 
         Loaded += MainWindow_Loaded;
+        SourceInitialized += MainWindow_SourceInitialized;
+    }
+
+    private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+    {
+        // Windows 11 title bar rengini sistem teması ile uyumlu yap
+        var helper = new WindowInteropHelper(this);
+        var hwnd = helper.Handle;
+        
+        if (hwnd != IntPtr.Zero)
+        {
+            // DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+            int useImmersiveDarkMode = 1;
+            DwmSetWindowAttribute(hwnd, 20, ref useImmersiveDarkMode, sizeof(int));
+            
+            // Windows 11'de sistem accent rengini kullan
+            if (IsWindows11OrGreater())
+            {
+                // DWMWA_SYSTEMBACKDROP_TYPE = 38 (Mica)
+                int backdropType = 2; // DWMSBT_MAINWINDOW
+                DwmSetWindowAttribute(hwnd, 38, ref backdropType, sizeof(int));
+            }
+        }
+    }
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+    [DllImport("ntdll.dll", SetLastError = true)]
+    private static extern int RtlGetVersion(ref OSVERSIONINFOEX versionInfo);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct OSVERSIONINFOEX
+    {
+        public int dwOSVersionInfoSize;
+        public int dwMajorVersion;
+        public int dwMinorVersion;
+        public int dwBuildNumber;
+        public int dwPlatformId;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string szCSDVersion;
+        public ushort wServicePackMajor;
+        public ushort wServicePackMinor;
+        public ushort wSuiteMask;
+        public byte wProductType;
+        public byte wReserved;
+    }
+
+    private bool IsWindows11OrGreater()
+    {
+        var versionInfo = new OSVERSIONINFOEX();
+        versionInfo.dwOSVersionInfoSize = Marshal.SizeOf(versionInfo);
+        
+        if (RtlGetVersion(ref versionInfo) == 0)
+        {
+            return versionInfo.dwMajorVersion >= 10 && versionInfo.dwBuildNumber >= 22000;
+        }
+        
+        return false;
     }
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)

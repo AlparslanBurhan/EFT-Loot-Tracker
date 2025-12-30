@@ -18,7 +18,13 @@
             <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#888888">
                 <Run Text="1. Tarayıcınızda Collector quest sayfasını açın:"/>
                 <LineBreak/>
-                <Run Text="   https://escapefromtarkov.fandom.com/wiki/Collector" Foreground="#6AB0DE"/>
+                <Run Text="   "/>
+                <Hyperlink NavigateUri="https://escapefromtarkov.fandom.com/wiki/Collector" 
+                           RequestNavigate="Hyperlink_RequestNavigate"
+                           Foreground="#6AB0DE" 
+                           TextDecorations="Underline">
+                    <Run Text="https://escapefromtarkov.fandom.com/wiki/Collector"/>
+                </Hyperlink>
                 <LineBreak/>
                 <Run Text="2. Sayfaya sağ tıklayıp 'Sayfa Kaynağını Görüntüle' seçin"/>
                 <LineBreak/>
