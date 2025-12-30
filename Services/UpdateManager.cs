@@ -29,10 +29,14 @@ namespace EFTLootTracker.Services
                 OnStatusChanged?.Invoke("Loot verileri kontrol ediliyor...");
 
                 var localItems = await _data.LoadItemsAsync();
-            var lastUpdate = _data.GetLastUpdateTime();
+                var lastUpdate = _data.GetLastUpdateTime();
 
-            // Check if we need to update (older than 24h or no data)
-            if (localItems.Count == 0 || (DateTime.Now - lastUpdate).TotalHours > 24)
+                // Dosya yoksa veya eski ise (24 saatten fazla) internetten çek
+                bool needsUpdate = localItems.Count == 0 || 
+                                   lastUpdate == DateTime.MinValue || 
+                                   (DateTime.Now - lastUpdate).TotalHours > 24;
+
+                if (needsUpdate)
             {
                 OnStatusChanged?.Invoke("Loot verileri Wiki'den çekiliyor...");
                 var remoteItems = await _scraper.ScrapeAllItemsAsync();
@@ -73,7 +77,12 @@ namespace EFTLootTracker.Services
                 var localItems = await _data.LoadCollectorItemsAsync();
                 var lastUpdate = _data.GetCollectorLastUpdateTime();
 
-                if (localItems.Count == 0 || (DateTime.Now - lastUpdate).TotalHours > 168) // Update collector weekly
+                // Dosya yoksa veya eski ise (haftalık) internetten çek
+                bool needsUpdate = localItems.Count == 0 || 
+                                   lastUpdate == DateTime.MinValue || 
+                                   (DateTime.Now - lastUpdate).TotalHours > 168;
+
+                if (needsUpdate) // Update collector weekly
                 {
                     OnStatusChanged?.Invoke("Collector verileri yükleniyor...");
                     var remoteItems = await _scraper.ScrapeCollectorItemsAsync();

@@ -34,3 +34,8 @@ assets/icons/
 # OS files
 Thumbs.db
 desktop.ini
+
+# Installer dosyaları (GitHub'a yüklenmesin)
+setup.iss
+INSTALLER_README.md
+installer_output/

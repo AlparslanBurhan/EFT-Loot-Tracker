@@ -10,15 +10,28 @@ namespace EFTLootTracker.Services
 {
     public class DataService
     {
-        private const string DataFolder = "data";
-        private const string CacheFolder = "cache/icons";
-        private const string ManifestPath = "data/manifest.json";
-        private const string CollectorManifestPath = "data/collector.json";
+        private readonly string DataFolder;
+        private readonly string CacheFolder;
+        private readonly string ManifestPath;
+        private readonly string CollectorManifestPath;
         private readonly HttpClient _httpClient;
 
         public DataService()
         {
             _httpClient = new HttpClient();
+            
+            // ProgramData klasörünü kullan
+            string appDataPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "EFT-Loot-Tracker"
+            );
+            
+            DataFolder = Path.Combine(appDataPath, "data");
+            CacheFolder = Path.Combine(appDataPath, "cache", "icons");
+            ManifestPath = Path.Combine(DataFolder, "manifest.json");
+            CollectorManifestPath = Path.Combine(DataFolder, "collector.json");
+            
+            // Klasörleri oluştur
             Directory.CreateDirectory(DataFolder);
             Directory.CreateDirectory(CacheFolder);
         }

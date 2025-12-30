@@ -1,0 +1,98 @@
+================================================================================
+                            EFT-LOOT-TRACKER
+                   MIT License with Attribution Requirement
+================================================================================
+
+TÜRKÇE VERSİYON
+================================================================================
+
+MIT Lisansı - Atıf Zorunluluğu ile
+
+Telif Hakkı (c) 2025 EFT-Loot-Tracker
+Geliştirici: Alparslan Burhan
+Proje: https://github.com/AlparslanBurhan/EFT-Loot-Tracker
+
+Bu yazılımın ve ilgili dokümantasyon dosyalarının ("Yazılım") bir kopyasını 
+edinen herhangi bir kişiye, Yazılım'ı kullanma, kopyalama, değiştirme, 
+birleştirme, yayımlama, dağıtma, alt lisanslama ve/veya Yazılım'ın kopyalarını 
+satma hakları da dahil olmak üzere, Yazılım'ı kısıtlama olmaksızın kullanma 
+izni burada ücretsiz olarak verilir ve Yazılım'ın sağlandığı kişilerin aşağıdaki 
+koşullara tabi olarak bunu yapmasına izin verilir:
+
+ZORUNLU ATIF ŞARTLARI:
+----------------------
+1. Yukarıdaki telif hakkı bildirimi ve bu izin bildirimi, Yazılım'ın tüm 
+   kopyalarına veya önemli bölümlerine dahil edilecektir.
+
+2. Yazılım'ı kullanarak türetilen herhangi bir çalışma, dokümantasyon veya 
+   yayında aşağıdaki atıf yapılmalıdır:
+   
+   "Bu proje EFT-Loot-Tracker (Alparslan Burhan) yazılımını kullanmaktadır.
+    Kaynak: https://github.com/AlparslanBurhan/EFT-Loot-Tracker"
+
+3. Yazılım'ın değiştirilmiş versiyonları dağıtılırken, değişikliklerin 
+   orijinal yazılıma ait olmadığı açıkça belirtilmelidir.
+
+4. Yazılım'ın ticari kullanımı durumunda, ürün dokümantasyonunda veya 
+   hakkında bölümünde orijinal yazara atıfta bulunulmalıdır.
+
+SORUMLULUK REDDİ:
+-----------------
+YAZILIM, TİCARİ ELVERİŞLİLİK, BELİRLİ BİR AMACA UYGUNLUK VE İHLAL ETMEME 
+GARANTİLERİ DAHİL ANCAK BUNLARLA SINIRLI OLMAMAK ÜZERE, AÇIK VEYA ZIMNİ 
+HİÇBİR GARANTİ OLMAKSIZIN "OLDUĞU GİBİ" SAĞLANMAKTADIR. HİÇBİR DURUMDA 
+YAZARLAR VEYA TELİF HAKKI SAHİPLERİ, SÖZLEŞME, HAKSIZ FİİL VEYA BAŞKA 
+BİR ŞEKİLDE, YAZILIM'DAN VEYA YAZILIM'IN KULLANIMI VEYA DİĞER İŞLEMLERDEN 
+KAYNAKLANAN, BUNLARLA BAĞLANTILI VEYA BAŞKA ŞEKİLDE ORTAYA ÇIKAN HERHANGİ 
+BİR İDDİA, HASAR VEYA DİĞER YÜKÜMLÜLÜKLERDEN SORUMLU TUTULAMAZ.
+
+
+================================================================================
+ENGLISH VERSION
+================================================================================
+
+MIT License - with Attribution Requirement
+
+Copyright (c) 2025 EFT-Loot-Tracker
+Developer: Alparslan Burhan
+Project: https://github.com/AlparslanBurhan/EFT-Loot-Tracker
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+MANDATORY ATTRIBUTION REQUIREMENTS:
+-----------------------------------
+1. The above copyright notice and this permission notice shall be included 
+   in all copies or substantial portions of the Software.
+
+2. Any derivative work, documentation, or publication using this Software 
+   must include the following attribution:
+   
+   "This project uses EFT-Loot-Tracker by Alparslan Burhan.
+    Source: https://github.com/AlparslanBurhan/EFT-Loot-Tracker"
+
+3. Modified versions of the Software, when distributed, must clearly indicate 
+   that changes have been made and that the modified version is not the 
+   original Software.
+
+4. Commercial use of the Software must include attribution to the original 
+   author in the product documentation or about section.
+
+DISCLAIMER:
+-----------
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+================================================================================
+                              SON / END
+================================================================================

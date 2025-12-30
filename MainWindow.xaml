@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:EFTLootTracker"
         xmlns:converters="clr-namespace:EFTLootTracker.Converters"
         mc:Ignorable="d"
-        Title="Tarkov Inventory Tracker" Height="800" Width="900" 
+        Title="EFT Loot Tracker" Height="800" Width="900" 
         Background="#1A1A1A" Foreground="#E0E0E0" WindowStartupLocation="CenterScreen"
         x:Name="MainWindowRoot">
     
