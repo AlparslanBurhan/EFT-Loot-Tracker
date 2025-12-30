@@ -242,9 +242,9 @@
                             
                             <StackPanel Margin="0,5,0,0">
                                 <!-- Quests Section -->
-                                <StackPanel Visibility="{Binding HasQuests, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel Visibility="{Binding HasFilteredQuests, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <TextBlock Text="Quests:" FontSize="10" Foreground="#666666" FontWeight="Bold" Margin="0,0,0,2"/>
-                                    <ItemsControl ItemsSource="{Binding Quests}">
+                                    <ItemsControl ItemsSource="{Binding FilteredQuests}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel Orientation="Horizontal"/>
@@ -252,18 +252,25 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
-                                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#AEB286"/>
+                                                <Border x:Name="QuestBorder" Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
+                                                    <TextBlock x:Name="QuestText" Text="{Binding}" FontSize="10" Foreground="#AEB286"/>
                                                 </Border>
+                                                <DataTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFir}" Value="True">
+                                                        <Setter TargetName="QuestBorder" Property="Background" Value="#1A233A"/>
+                                                        <Setter TargetName="QuestBorder" Property="BorderBrush" Value="#3A5A8B"/>
+                                                        <Setter TargetName="QuestText" Property="Foreground" Value="#A0C5E8"/>
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
 
                                 <!-- Hideout Section -->
-                                <StackPanel Visibility="{Binding HasHideoutModules, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,5,0,0">
+                                <StackPanel Visibility="{Binding HasFilteredHideoutModules, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,5,0,0">
                                     <TextBlock Text="Hideout:" FontSize="10" Foreground="#666666" FontWeight="Bold" Margin="0,0,0,2"/>
-                                    <ItemsControl ItemsSource="{Binding HideoutModules}">
+                                    <ItemsControl ItemsSource="{Binding FilteredHideoutModules}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel Orientation="Horizontal"/>
@@ -271,9 +278,16 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="#2A1A1A" BorderBrush="#8B4040" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
-                                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="#E09090"/>
+                                                <Border x:Name="HideoutBorder" Background="#2A1A1A" BorderBrush="#8B4040" BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,5,5">
+                                                    <TextBlock x:Name="HideoutText" Text="{Binding}" FontSize="10" Foreground="#E09090"/>
                                                 </Border>
+                                                <DataTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFir}" Value="True">
+                                                        <Setter TargetName="HideoutBorder" Property="Background" Value="#1A233A"/>
+                                                        <Setter TargetName="HideoutBorder" Property="BorderBrush" Value="#3A5A8B"/>
+                                                        <Setter TargetName="HideoutText" Property="Foreground" Value="#A0C5E8"/>
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -281,8 +295,8 @@
 
                                 <!-- Summary Stats -->
                                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                    <TextBlock Text="{Binding Requirements.Total, StringFormat='Toplam: {0}'}" FontSize="10" Foreground="#888888" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding Requirements.FoundInRaid, StringFormat='FIR: {0}'}" FontSize="10" Foreground="#556644"/>
+                                    <TextBlock Text="{Binding FilteredTotal, StringFormat='Toplam: {0}'}" FontSize="10" Foreground="#888888" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding FilteredFir, StringFormat='FIR: {0}'}" FontSize="10" Foreground="#3A5A8B" FontWeight="Bold"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>

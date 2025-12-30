@@ -96,6 +96,12 @@ public partial class MainWindow : Window
             }
         }
 
+        // Update SelectedFilter for all items (so they can update their dynamic properties)
+        foreach (var item in _allItems)
+        {
+            item.SelectedFilter = selectedFilter;
+        }
+
         var result = filtered.ToList();
         ItemsListBox.ItemsSource = result;
         if (ItemCountText != null) ItemCountText.Text = $"{result.Count} öğe listeleniyor";
