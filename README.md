@@ -97,7 +97,7 @@ Uygulama, EFT Wiki üzerinden otomatik olarak güncel verileri çekerek oyuncula
 #### 2. Installer ile Kurulum
 
 1. **Installer'ı İndirin**: 
-   - [Releases](https://github.com/AlparslanBurhan/EFT-Loot-Tracker/releases) sayfasından en son `EFT-Loot-Tracker_Setup_v1.0.0.exe` dosyasını indirin
+   - [Releases](https://github.com/AlparslanBurhan/EFT-Loot-Tracker/releases) sayfasından en son `EFT-Loot-Tracker_Setup_v1.1.1.exe` dosyasını indirin
 
 2. **Installer'ı Çalıştırın**:
    - İndirilen `.exe` dosyasına çift tıklayın
@@ -171,7 +171,7 @@ dotnet build -c Release
 
 # 2. Inno Setup'ı açın ve setup.iss dosyasını yükleyin
 # 3. Build → Compile seçeneğine tıklayın
-# 4. Oluşturulan installer: installer_output/EFT-Loot-Tracker_Setup_v1.0.0.exe
+# 4. Oluşturulan installer: installer_output/EFT-Loot-Tracker_Setup_v1.1.1.exe
 ```
 
 ---
@@ -565,6 +565,17 @@ Kaynak: https://github.com/AlparslanBurhan/EFT-Loot-Tracker
 ---
 
 ## 🔄 Güncellemeler
+
+### v1.1.1 (30 Aralık 2025)
+- 🎨 Uygulama simgesi (icon) değiştirildi
+- 🔧 Görsel iyileştirmeler
+
+### v1.1.0 (30 Aralık 2025)
+- ⭐ Always on Top özelliği eklendi
+- 🔄 Otomatik güncelleme (Auto Update) sistemi eklendi
+- 🔧 Kod iyileştirmeleri ve optimizasyonlar
+- 🐛 Hata düzeltmeleri
+- 📝 Dokümantasyon güncellemeleri
 
 ### v1.0.0 (30 Aralık 2025)
 - ✨ İlk stabil sürüm
