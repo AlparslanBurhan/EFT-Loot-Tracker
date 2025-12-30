@@ -1,7 +1,7 @@
 # EFT-Loot-Tracker
 
 <div align="center">
-  <img src="assets/EFT-Loot-Tracker.png" alt="EFT-Loot-Tracker Logo" width="128" height="128">
+  <img src="Assets/EFT-Loot-Tracker.png" alt="EFT-Loot-Tracker Logo" width="128" height="128">
   
   **Escape from Tarkov** oyuncuları için profesyonel eşya takip uygulaması
   
