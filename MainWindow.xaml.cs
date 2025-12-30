@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 {
     private UpdateManager _updateManager;
     private List<LootItem> _allItems = new List<LootItem>();
+    private List<LootItem> _collectorItems = new List<LootItem>();
 
     public MainWindow()
     {
@@ -41,9 +42,14 @@ public partial class MainWindow : Window
         try
         {
             _allItems = await _updateManager.InitializeDataAsync();
+            _collectorItems = await _updateManager.InitializeCollectorDataAsync();
+
             PopulateFilters();
             ApplyFilters();
+            
+            CollectorListBox.ItemsSource = _collectorItems;
             UpdateProgress.Visibility = Visibility.Collapsed;
+            UpdateItemCount();
         }
         catch (Exception ex)
         {
@@ -104,7 +110,29 @@ public partial class MainWindow : Window
 
         var result = filtered.ToList();
         ItemsListBox.ItemsSource = result;
-        if (ItemCountText != null) ItemCountText.Text = $"{result.Count} öğe listeleniyor";
+        UpdateItemCount();
+    }
+
+    private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.Source is TabControl)
+        {
+            UpdateItemCount();
+        }
+    }
+
+    private void UpdateItemCount()
+    {
+        if (ItemCountText == null) return;
+
+        if (ItemsListBox != null && ItemsListBox.IsVisible)
+        {
+            ItemCountText.Text = $"{ItemsListBox.Items.Count} öğe listeleniyor";
+        }
+        else if (CollectorListBox != null && CollectorListBox.IsVisible)
+        {
+            ItemCountText.Text = $"{CollectorListBox.Items.Count} öğe listeleniyor";
+        }
     }
 
     private void FilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)

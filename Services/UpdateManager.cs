@@ -62,5 +62,46 @@ namespace EFTLootTracker.Services
                 _isUpdating = false;
             }
         }
+
+        public async Task<List<LootItem>> InitializeCollectorDataAsync()
+        {
+            if (_isUpdating) return new List<LootItem>();
+            _isUpdating = true;
+
+            try {
+                OnStatusChanged?.Invoke("Collector verileri kontrol ediliyor...");
+            
+                var localItems = await _data.LoadCollectorItemsAsync();
+                var lastUpdate = _data.GetCollectorLastUpdateTime();
+
+                if (localItems.Count == 0 || (DateTime.Now - lastUpdate).TotalHours > 168) // Update collector weekly
+                {
+                    OnStatusChanged?.Invoke("Collector verileri Wiki'den çekiliyor...");
+                    var remoteItems = await _scraper.ScrapeCollectorItemsAsync();
+
+                    if (remoteItems != null && remoteItems.Count > 0)
+                    {
+                        OnStatusChanged?.Invoke("Collector simgeleri indiriliyor...");
+                        await _data.DownloadIconsAsync(remoteItems, (current, total) => {
+                            OnProgressChanged?.Invoke(current, total);
+                        });
+
+                        await _data.SaveCollectorItemsAsync(remoteItems);
+                        OnStatusChanged?.Invoke("Collector verileri güncellendi.");
+                        return remoteItems;
+                    }
+                    else
+                    {
+                        OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi.");
+                        return localItems;
+                    }
+                }
+
+                OnStatusChanged?.Invoke("Collector verileri güncel.");
+                return localItems;
+            } finally {
+                _isUpdating = false;
+            }
+        }
     }
 }

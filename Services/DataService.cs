@@ -13,6 +13,7 @@ namespace EFTLootTracker.Services
         private const string DataFolder = "data";
         private const string CacheFolder = "cache/icons";
         private const string ManifestPath = "data/manifest.json";
+        private const string CollectorManifestPath = "data/collector.json";
         private readonly HttpClient _httpClient;
 
         public DataService()
@@ -33,12 +34,32 @@ namespace EFTLootTracker.Services
             }
         }
 
+        public async Task SaveCollectorItemsAsync(List<LootItem> items)
+        {
+            try {
+                var json = JsonConvert.SerializeObject(items, Formatting.Indented);
+                await File.WriteAllTextAsync(CollectorManifestPath, json);
+                await File.AppendAllTextAsync("debug.log", $"Saved {items.Count} collector items to {Path.GetFullPath(CollectorManifestPath)}\n");
+            } catch (Exception ex) {
+                await File.AppendAllTextAsync("debug.log", $"Collector Save Error: {ex.Message}\n");
+            }
+        }
+
         public async Task<List<LootItem>> LoadItemsAsync()
         {
             if (!File.Exists(ManifestPath))
                 return new List<LootItem>();
 
             var json = await File.ReadAllTextAsync(ManifestPath);
+            return JsonConvert.DeserializeObject<List<LootItem>>(json) ?? new List<LootItem>();
+        }
+
+        public async Task<List<LootItem>> LoadCollectorItemsAsync()
+        {
+            if (!File.Exists(CollectorManifestPath))
+                return new List<LootItem>();
+
+            var json = await File.ReadAllTextAsync(CollectorManifestPath);
             return JsonConvert.DeserializeObject<List<LootItem>>(json) ?? new List<LootItem>();
         }
 
@@ -86,6 +107,15 @@ namespace EFTLootTracker.Services
             if (File.Exists(ManifestPath))
             {
                 return File.GetLastWriteTime(ManifestPath);
+            }
+            return DateTime.MinValue;
+        }
+
+        public DateTime GetCollectorLastUpdateTime()
+        {
+            if (File.Exists(CollectorManifestPath))
+            {
+                return File.GetLastWriteTime(CollectorManifestPath);
             }
             return DateTime.MinValue;
         }
