@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:EFTLootTracker"
         xmlns:converters="clr-namespace:EFTLootTracker.Converters"
         mc:Ignorable="d"
-        Title="EFT Loot Tracker" Height="800" Width="900" 
+        Title="EFT Loot Tracker" 
         Background="#1A1A1A" Foreground="#E0E0E0" WindowStartupLocation="CenterScreen"
         x:Name="MainWindowRoot">
     
@@ -235,12 +235,18 @@
                                     BorderThickness="{TemplateBinding BorderThickness}" 
                                     CornerRadius="3">
                                 <Path x:Name="CheckMark" 
-                                      Data="M 3,8 L 6,11 L 13,4" 
+                                      Data="M 0,3.1 L 2.4,5.5 L 7,0" 
+                                      Width="10" Height="7"
+                                      Stretch="Uniform"
                                       Stroke="#AEB286" 
                                       StrokeThickness="2" 
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
                                       Visibility="Collapsed"
                                       HorizontalAlignment="Center" 
-                                      VerticalAlignment="Center"/>
+                                      VerticalAlignment="Center"
+                                      SnapsToDevicePixels="True"/>
                             </Border>
                             <ContentPresenter Grid.Column="1" 
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
@@ -546,7 +552,7 @@
                     <StackPanel>
                         <TextBlock Text="Genel Ayarlar" FontSize="18" Foreground="#AEB286" FontWeight="Bold" Margin="0,0,0,15"/>
                         
-                        <Border Background="#262626" CornerRadius="4" Padding="15" BorderBrush="#333333" BorderThickness="1">
+                        <Border Background="#262626" CornerRadius="4" Padding="15" BorderBrush="#333333" BorderThickness="0">
                             <CheckBox x:Name="AlwaysOnTopCheckBox" Content="Her zaman üstte tut" 
                                       Foreground="#E0E0E0" FontSize="14"
                                       Checked="AlwaysOnTopCheckBox_Checked" Unchecked="AlwaysOnTopCheckBox_Unchecked"

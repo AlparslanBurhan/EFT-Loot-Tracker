@@ -84,31 +84,48 @@ namespace EFTLootTracker.Services
 
                 if (needsUpdate) // Update collector weekly
                 {
-                    OnStatusChanged?.Invoke("Collector verileri yükleniyor...");
-                    var remoteItems = await _scraper.ScrapeCollectorItemsAsync();
-
-                    if (remoteItems != null && remoteItems.Count > 0)
-                    {
-                        OnStatusChanged?.Invoke($"Collector simgeleri indiriliyor... ({remoteItems.Count} öğe)");
-                        await _data.DownloadIconsAsync(remoteItems, (current, total) => {
-                            OnProgressChanged?.Invoke(current, total);
-                        });
-
-                        await _data.SaveCollectorItemsAsync(remoteItems);
-                        OnStatusChanged?.Invoke($"Collector verileri güncellendi ({remoteItems.Count} öğe)");
-                        return remoteItems;
-                    }
-                    else
-                    {
-                        OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi");
-                        return localItems;
-                    }
+                    return await UpdateCollectorNowAsync();
                 }
 
                 OnStatusChanged?.Invoke($"Collector verileri yüklendi ({localItems.Count} öğe)");
                 return localItems;
             } finally {
                 _isUpdating = false;
+            }
+        }
+
+        public async Task<List<LootItem>> ForceUpdateCollectorDataAsync()
+        {
+            if (_isUpdating) return new List<LootItem>();
+            _isUpdating = true;
+
+            try {
+                return await UpdateCollectorNowAsync();
+            } finally {
+                _isUpdating = false;
+            }
+        }
+
+        private async Task<List<LootItem>> UpdateCollectorNowAsync()
+        {
+            OnStatusChanged?.Invoke("Collector verileri yükleniyor...");
+            var remoteItems = await _scraper.ScrapeCollectorItemsAsync();
+
+            if (remoteItems != null && remoteItems.Count > 0)
+            {
+                OnStatusChanged?.Invoke($"Collector simgeleri indiriliyor... ({remoteItems.Count} öğe)");
+                await _data.DownloadIconsAsync(remoteItems, (current, total) => {
+                    OnProgressChanged?.Invoke(current, total);
+                });
+
+                await _data.SaveCollectorItemsAsync(remoteItems);
+                OnStatusChanged?.Invoke($"Collector verileri güncellendi ({remoteItems.Count} öğe)");
+                return remoteItems;
+            }
+            else
+            {
+                OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi");
+                return await _data.LoadCollectorItemsAsync();
             }
         }
     }

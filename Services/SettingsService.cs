@@ -22,6 +22,18 @@ namespace EFTLootTracker.Services
             set => SetValue("AlwaysOnTop", value.ToString());
         }
 
+        public double WindowWidth
+        {
+            get => double.TryParse(GetValue("WindowWidth", "1400"), out var w) ? w : 1400;
+            set => SetValue("WindowWidth", value.ToString());
+        }
+
+        public double WindowHeight
+        {
+            get => double.TryParse(GetValue("WindowHeight", "1000"), out var h) ? h : 1000;
+            set => SetValue("WindowHeight", value.ToString());
+        }
+
         private string GetValue(string key, string defaultValue)
         {
             return _settings.TryGetValue(key, out var value) ? value : defaultValue;

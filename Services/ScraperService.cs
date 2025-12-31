@@ -218,7 +218,7 @@ namespace EFTLootTracker.Services
             try
             {
                 string html = "";
-                string staticPath = "data/collector_static.html";
+                string staticPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "collector_static.html");
                 
                 if (System.IO.File.Exists(staticPath))
                 {

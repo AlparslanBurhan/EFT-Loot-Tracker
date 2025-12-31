@@ -41,6 +41,16 @@ public partial class MainWindow : Window
 
         Loaded += MainWindow_Loaded;
         SourceInitialized += MainWindow_SourceInitialized;
+        
+        // Window size and position from settings
+        this.Width = _settingsService.WindowWidth;
+        this.Height = _settingsService.WindowHeight;
+        this.Topmost = _settingsService.AlwaysOnTop;
+
+        this.Closing += (s, ev) => {
+            _settingsService.WindowWidth = this.ActualWidth;
+            _settingsService.WindowHeight = this.ActualHeight;
+        };
     }
 
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
@@ -121,12 +131,10 @@ public partial class MainWindow : Window
             PopulateFilters();
             ApplyFilters();
             
+            AlwaysOnTopCheckBox.IsChecked = _settingsService.AlwaysOnTop;
+            
             CollectorListBox.ItemsSource = _collectorItems;
             
-            // Load settings
-            AlwaysOnTopCheckBox.IsChecked = _settingsService.AlwaysOnTop;
-            this.Topmost = _settingsService.AlwaysOnTop;
-
             // Hide progress bar and show final status
             UpdateProgress.Visibility = Visibility.Collapsed;
             StatusText.Text = $"Loot: {_allItems.Count} öğe • Collector: {_collectorItems.Count} öğe • Veriler güncel";
@@ -263,14 +271,19 @@ public partial class MainWindow : Window
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 await File.WriteAllTextAsync(filePath, htmlContent);
                 
-                StatusText.Text = "HTML dosyası güncellendi. Veriler yeniden yükleniyor...";
+                StatusText.Text = "HTML dosyası güncellendi. Veriler yeniden işleniyor...";
                 StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
                 
-                // Reload Collector data
-                _collectorItems = await _updateManager.InitializeCollectorDataAsync();
+                // Reload Collector data using ForceUpdate to bypass time checks
+                _collectorItems = await _updateManager.ForceUpdateCollectorDataAsync();
+                
+                // Update UI immediately
+                CollectorListBox.ItemsSource = null; // Reset binding
+                CollectorListBox.ItemsSource = _collectorItems;
                 ApplyCollectorFilter();
                 
-                StatusText.Text = "Collector verileri başarıyla güncellendi!";
+                StatusText.Text = $"Collector verileri başarıyla güncellendi ({_collectorItems.Count} öğe)!";
+                StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
             }
             catch (Exception ex)
             {
