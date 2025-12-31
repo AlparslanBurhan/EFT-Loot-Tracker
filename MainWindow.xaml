@@ -302,11 +302,6 @@
                                      TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"/>
                             <TextBlock x:Name="SearchPlaceholder" Grid.Column="1" Text="Eşya Ara..." IsHitTestVisible="False" 
                                        VerticalAlignment="Center" Foreground="#505050" FontSize="14" Visibility="Visible"/>
-                            
-                            <CheckBox x:Name="AlwaysOnTopCheckBox" Grid.Column="2" Content="Her zaman üsste" 
-                                      VerticalAlignment="Center" Margin="10,0,5,0" Foreground="#E0E0E0"
-                                      Checked="AlwaysOnTopCheckBox_Checked" Unchecked="AlwaysOnTopCheckBox_Unchecked"
-                                      Style="{StaticResource FlatCheckBoxStyle}"/>
 
                             <ComboBox x:Name="FilterCombo" Grid.Column="3" Margin="5,0,0,0" 
                                       SelectionChanged="FilterCombo_SelectionChanged">
@@ -542,6 +537,22 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                </Grid>
+            </TabItem>
+
+            <!-- Settings Tab -->
+            <TabItem Header="Ayarlar">
+                <Grid Margin="20">
+                    <StackPanel>
+                        <TextBlock Text="Genel Ayarlar" FontSize="18" Foreground="#AEB286" FontWeight="Bold" Margin="0,0,0,15"/>
+                        
+                        <Border Background="#262626" CornerRadius="4" Padding="15" BorderBrush="#333333" BorderThickness="1">
+                            <CheckBox x:Name="AlwaysOnTopCheckBox" Content="Her zaman üstte tut" 
+                                      Foreground="#E0E0E0" FontSize="14"
+                                      Checked="AlwaysOnTopCheckBox_Checked" Unchecked="AlwaysOnTopCheckBox_Unchecked"
+                                      Style="{StaticResource FlatCheckBoxStyle}"/>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </TabItem>
         </TabControl>

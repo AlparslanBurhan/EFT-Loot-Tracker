@@ -10,7 +10,7 @@ namespace EFTLootTracker.Converters
         {
             if (value is double width)
             {
-                return (width - 40) / 2;
+                return (width - 40) / 3;
             }
             return 430.0; // fallback
         }

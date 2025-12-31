@@ -20,11 +20,8 @@ namespace EFTLootTracker.Services
         {
             _httpClient = new HttpClient();
             
-            // ProgramData klasörünü kullan
-            string appDataPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "EFT-Loot-Tracker"
-            );
+            // Uygulama dizinini kullan
+            string appDataPath = AppDomain.CurrentDomain.BaseDirectory;
             
             DataFolder = Path.Combine(appDataPath, "data");
             CacheFolder = Path.Combine(appDataPath, "cache", "icons");

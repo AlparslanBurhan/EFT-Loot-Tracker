@@ -37,7 +37,7 @@ namespace EFTLootTracker.Services
 
         public async Task<List<LootItem>> ScrapeAllItemsAsync()
         {
-            var items = new List<LootItem>();
+            var itemDict = new Dictionary<string, LootItem>(StringComparer.OrdinalIgnoreCase);
             try
             {
                 var html = await _httpClient.GetStringAsync(LootUrl);
@@ -47,7 +47,7 @@ namespace EFTLootTracker.Services
                 var tables = doc.DocumentNode.SelectNodes("//table[contains(@class, 'wikitable')]");
                 if (tables == null)
                 {
-                    return items;
+                    return new List<LootItem>();
                 }
 
                 foreach (var table in tables)
@@ -64,11 +64,7 @@ namespace EFTLootTracker.Services
 
                         if (cells[0].InnerText.Contains("Icon") || cells[1].InnerText.Contains("Name")) continue;
 
-                        var item = ParseRow(cells, category);
-                        if (item != null && !string.IsNullOrEmpty(item.Name))
-                        {
-                            items.Add(item);
-                        }
+                        ParseRow(cells, category, itemDict);
                     }
                 }
             }
@@ -76,7 +72,7 @@ namespace EFTLootTracker.Services
             {
             }
 
-            return items;
+            return itemDict.Values.ToList();
         }
 
         private string GetCategory(HtmlNode table)
@@ -85,26 +81,31 @@ namespace EFTLootTracker.Services
             return heading?.InnerText.Trim() ?? "Diğer";
         }
 
-        private LootItem ParseRow(HtmlNodeCollection cells, string category)
+        private void ParseRow(HtmlNodeCollection cells, string category, Dictionary<string, LootItem> itemDict)
         {
-            var item = new LootItem { Category = category };
-
-            // Icon: First column
-            var img = cells[0].SelectSingleNode(".//img");
-            if (img != null)
-            {
-                item.IconUrl = img.GetAttributeValue("data-src", img.GetAttributeValue("src", ""));
-                if (item.IconUrl.Contains("/revision/"))
-                    item.IconUrl = item.IconUrl.Split("/revision/")[0];
-            }
-
             // Name: Second column
             var nameNode = cells[1].SelectSingleNode(".//a") ?? cells[1];
-            item.Name = nameNode.InnerText.Trim();
-            
-            var link = cells[1].SelectSingleNode(".//a");
-            if (link != null)
-                item.WikiUrl = WikiBaseUrl + link.GetAttributeValue("href", "");
+            string name = nameNode.InnerText.Trim();
+            if (string.IsNullOrEmpty(name)) return;
+
+            if (!itemDict.TryGetValue(name, out var item))
+            {
+                item = new LootItem { Name = name, Category = category };
+                itemDict[name] = item;
+                
+                // Icon: First column
+                var img = cells[0].SelectSingleNode(".//img");
+                if (img != null)
+                {
+                    item.IconUrl = img.GetAttributeValue("data-src", img.GetAttributeValue("src", ""));
+                    if (item.IconUrl.Contains("/revision/"))
+                        item.IconUrl = item.IconUrl.Split("/revision/")[0];
+                }
+
+                var link = cells[1].SelectSingleNode(".//a");
+                if (link != null)
+                    item.WikiUrl = WikiBaseUrl + link.GetAttributeValue("href", "");
+            }
 
             // Notes: Last column (Parsing list items for quests and modules)
             var notesCell = cells[cells.Count - 1];
@@ -122,8 +123,6 @@ namespace EFTLootTracker.Services
                 // Fallback for non-list notes
                 ParseRequirements(notesCell.InnerText, item);
             }
-
-            return item;
         }
 
         private void ParseListItem(HtmlNode li, LootItem item)
@@ -141,9 +140,6 @@ namespace EFTLootTracker.Services
                          li.InnerHtml.Contains("color=\"red\"") || 
                          li.InnerHtml.Contains("color:red");
 
-            item.Requirements.Total += count;
-            if (isFir) item.Requirements.FoundInRaid += count;
-
             // Extract Quest or Module name
             // Usually in an <a> tag
             var links = li.SelectNodes(".//a");
@@ -152,7 +148,7 @@ namespace EFTLootTracker.Services
                 foreach (var a in links)
                 {
                     string linkText = a.InnerText.Trim();
-                    if (linkText.Equals("in raid", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (string.IsNullOrEmpty(linkText) || linkText.Equals("in raid", StringComparison.OrdinalIgnoreCase)) continue;
                     
                     string targetList = "";
                     if (text.Contains("quest", StringComparison.OrdinalIgnoreCase))
@@ -171,13 +167,21 @@ namespace EFTLootTracker.Services
 
                     if (targetList == "Quest")
                     {
-                        if (!item.Quests.Any(q => q.Name == linkText))
+                        if (!item.Quests.Any(q => q.Name.Equals(linkText, StringComparison.OrdinalIgnoreCase)))
+                        {
                             item.Quests.Add(new RequirementDetail { Name = linkText, Count = count, IsFir = isFir });
+                            item.Requirements.Total += count;
+                            if (isFir) item.Requirements.FoundInRaid += count;
+                        }
                     }
                     else if (targetList == "Hideout")
                     {
-                        if (!item.HideoutModules.Any(m => m.Name == linkText))
+                        if (!item.HideoutModules.Any(m => m.Name.Equals(linkText, StringComparison.OrdinalIgnoreCase)))
+                        {
                             item.HideoutModules.Add(new RequirementDetail { Name = linkText, Count = count, IsFir = isFir });
+                            item.Requirements.Total += count;
+                            if (isFir) item.Requirements.FoundInRaid += count;
+                        }
                     }
                 }
             }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace EFTLootTracker.Models
 {
@@ -31,7 +32,9 @@ namespace EFTLootTracker.Models
         public string WikiUrl { get; set; } = string.Empty;
         public DateTime LastUpdated { get; set; }
 
+        [JsonIgnore]
         public bool HasQuests => Quests?.Any() == true;
+        [JsonIgnore]
         public bool HasHideoutModules => HideoutModules?.Any() == true;
 
         // Filtering support
@@ -46,6 +49,7 @@ namespace EFTLootTracker.Models
             }
         }
 
+        [JsonIgnore]
         public IEnumerable<RequirementDetail> FilteredQuests => 
             string.IsNullOrEmpty(SelectedFilter) || SelectedFilter == "Tümü" 
             ? Quests 
@@ -53,6 +57,7 @@ namespace EFTLootTracker.Models
                 ? Quests.Where(q => SelectedFilter.EndsWith(q.Name, StringComparison.OrdinalIgnoreCase))
                 : Enumerable.Empty<RequirementDetail>());
 
+        [JsonIgnore]
         public IEnumerable<RequirementDetail> FilteredHideoutModules => 
             string.IsNullOrEmpty(SelectedFilter) || SelectedFilter == "Tümü" 
             ? HideoutModules 
@@ -60,17 +65,21 @@ namespace EFTLootTracker.Models
                 ? HideoutModules.Where(m => SelectedFilter.EndsWith(m.Name, StringComparison.OrdinalIgnoreCase))
                 : Enumerable.Empty<RequirementDetail>());
 
+        [JsonIgnore]
         public int FilteredTotal => 
             string.IsNullOrEmpty(SelectedFilter) || SelectedFilter == "Tümü"
             ? Requirements.Total
             : FilteredQuests.Sum(q => q.Count) + FilteredHideoutModules.Sum(m => m.Count);
 
+        [JsonIgnore]
         public int FilteredFir => 
             string.IsNullOrEmpty(SelectedFilter) || SelectedFilter == "Tümü"
             ? Requirements.FoundInRaid
             : FilteredQuests.Where(q => q.IsFir).Sum(q => q.Count) + FilteredHideoutModules.Where(m => m.IsFir).Sum(m => m.Count);
 
+        [JsonIgnore]
         public bool HasFilteredQuests => FilteredQuests.Any();
+        [JsonIgnore]
         public bool HasFilteredHideoutModules => FilteredHideoutModules.Any();
 
         // INotifyPropertyChanged implementation
@@ -87,6 +96,7 @@ namespace EFTLootTracker.Models
         }
 
         // Helper property for UI binding
+        [JsonIgnore]
         public string AllRequirements => string.Join(", ", 
             Quests.Select(q => q.ToString())
             .Concat(HideoutModules.Select(m => m.ToString())));

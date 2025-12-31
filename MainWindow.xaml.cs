@@ -17,6 +17,7 @@ namespace EFTLootTracker;
 public partial class MainWindow : Window
 {
     private UpdateManager _updateManager;
+    private SettingsService _settingsService;
     private List<LootItem> _allItems = new List<LootItem>();
     private List<LootItem> _collectorItems = new List<LootItem>();
 
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _updateManager = new UpdateManager();
+        _settingsService = new SettingsService();
         
         _updateManager.OnStatusChanged += (status) => {
             Dispatcher.Invoke(() => StatusText.Text = status);
@@ -121,6 +123,10 @@ public partial class MainWindow : Window
             
             CollectorListBox.ItemsSource = _collectorItems;
             
+            // Load settings
+            AlwaysOnTopCheckBox.IsChecked = _settingsService.AlwaysOnTop;
+            this.Topmost = _settingsService.AlwaysOnTop;
+
             // Hide progress bar and show final status
             UpdateProgress.Visibility = Visibility.Collapsed;
             StatusText.Text = $"Loot: {_allItems.Count} öğe • Collector: {_collectorItems.Count} öğe • Veriler güncel";
@@ -277,10 +283,12 @@ public partial class MainWindow : Window
     private void AlwaysOnTopCheckBox_Checked(object sender, RoutedEventArgs e)
     {
         this.Topmost = true;
+        if (_settingsService != null) _settingsService.AlwaysOnTop = true;
     }
 
     private void AlwaysOnTopCheckBox_Unchecked(object sender, RoutedEventArgs e)
     {
         this.Topmost = false;
+        if (_settingsService != null) _settingsService.AlwaysOnTop = false;
     }
 }
