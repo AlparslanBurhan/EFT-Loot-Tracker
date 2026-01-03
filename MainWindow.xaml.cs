@@ -261,6 +261,7 @@ public partial class MainWindow : Window
     private async void UpdateCollectorButton_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new HtmlInputDialog();
+        dialog.Owner = this;
         if (dialog.ShowDialog() == true)
         {
             try
@@ -303,5 +304,49 @@ public partial class MainWindow : Window
     {
         this.Topmost = false;
         if (_settingsService != null) _settingsService.AlwaysOnTop = false;
+    }
+
+    private async void CollectorFound_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_collectorItems == null) return;
+
+        var status = _collectorItems.ToDictionary(i => i.Name, i => i.IsFound);
+        var dataService = new DataService();
+        await dataService.SaveCollectorStatusAsync(status);
+    }
+
+    private async void ResetLootDataButton_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(
+            "Tüm loot verileri Wiki'den yeniden indirilecek. Bu işlem internet hızınıza bağlı olarak birkaç dakika sürebilir. Devam etmek istiyor musunuz?",
+            "Verileri Yenile",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            try
+            {
+                StatusText.Foreground = System.Windows.Media.Brushes.LightGray;
+                UpdateProgress.Visibility = Visibility.Visible;
+                
+                _allItems = await _updateManager.ForceUpdateLootDataAsync();
+                
+                ApplyFilters();
+                
+                UpdateProgress.Visibility = Visibility.Collapsed;
+                StatusText.Text = $"Loot verileri başarıyla güncellendi ({_allItems.Count} öğe)!";
+                StatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+                
+                MessageBox.Show("Veriler başarıyla güncellendi!", "Bilgi", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                UpdateProgress.Visibility = Visibility.Collapsed;
+                StatusText.Text = "Hata: " + ex.Message;
+                StatusText.Foreground = System.Windows.Media.Brushes.Red;
+                MessageBox.Show("Hata oluştu: " + ex.Message, "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

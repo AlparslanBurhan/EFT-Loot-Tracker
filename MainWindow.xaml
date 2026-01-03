@@ -528,16 +528,27 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                        <Border Background="#1A233A" BorderBrush="#3A5A8B" BorderThickness="1" CornerRadius="3" Padding="8,4" Margin="0,0,0,5">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Amount: " FontSize="11" Foreground="#A0C5E8"/>
-                                                <TextBlock Text="{Binding Requirements.Total}" FontSize="11" Foreground="#E0E0E0" FontWeight="Bold"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="3" Padding="8,2" HorizontalAlignment="Right">
-                                            <TextBlock Text="Find in Raid: Required" FontSize="9" Foreground="#AEB286"/>
-                                        </Border>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                        <StackPanel VerticalAlignment="Center" Margin="0,0,15,0">
+                                            <Border Background="#1A233A" BorderBrush="#3A5A8B" BorderThickness="1" CornerRadius="3" Padding="8,4" Margin="0,0,0,5">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Amount: " FontSize="11" Foreground="#A0C5E8"/>
+                                                    <TextBlock Text="{Binding Requirements.Total}" FontSize="11" Foreground="#E0E0E0" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <Border Background="#2A2A1A" BorderBrush="#556644" BorderThickness="1" CornerRadius="3" Padding="8,2" HorizontalAlignment="Right">
+                                                <TextBlock Text="Find in Raid: Required" FontSize="9" Foreground="#AEB286"/>
+                                            </Border>
+                                        </StackPanel>
+                                        
+                                        <StackPanel VerticalAlignment="Center" Margin="5,0,0,0" Width="60">
+                                            <TextBlock Text="Found" HorizontalAlignment="Center" FontSize="10" Foreground="#888888" Margin="0,0,0,3"/>
+                                            <CheckBox IsChecked="{Binding IsFound, Mode=TwoWay}" 
+                                                      HorizontalAlignment="Center" 
+                                                      Style="{StaticResource FlatCheckBoxStyle}"
+                                                      Checked="CollectorFound_Changed"
+                                                      Unchecked="CollectorFound_Changed"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>
@@ -552,11 +563,46 @@
                     <StackPanel>
                         <TextBlock Text="Genel Ayarlar" FontSize="18" Foreground="#AEB286" FontWeight="Bold" Margin="0,0,0,15"/>
                         
-                        <Border Background="#262626" CornerRadius="4" Padding="15" BorderBrush="#333333" BorderThickness="0">
+                        <Border Background="#262626" CornerRadius="4" Padding="15" BorderBrush="#333333" BorderThickness="0" Margin="0,0,0,20">
                             <CheckBox x:Name="AlwaysOnTopCheckBox" Content="Her zaman üstte tut" 
                                       Foreground="#E0E0E0" FontSize="14"
                                       Checked="AlwaysOnTopCheckBox_Checked" Unchecked="AlwaysOnTopCheckBox_Unchecked"
                                       Style="{StaticResource FlatCheckBoxStyle}"/>
+                        </Border>
+
+                        <TextBlock Text="Veri Yönetimi" FontSize="18" Foreground="#AEB286" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <Border Background="#2A1A1A" BorderBrush="#3A2A2A" BorderThickness="1" CornerRadius="4" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="Loot Verilerini Yenile" FontSize="16" FontWeight="Bold" Foreground="#DE6A6A" Margin="0,0,0,5"/>
+                                <TextBlock Text="Eğer verilerinizde bir hata olduğunu düşünüyorsanız veya güncel Wiki verilerini hemen çekmek istiyorsanız aşağıdaki butonu kullanabilirsiniz. Bu işlem 24 saatlik kontrolü atlayarak tüm verileri yeniden indirir." 
+                                         FontSize="12" Foreground="#888888" TextWrapping="Wrap" Margin="0,0,0,15"/>
+                                <Button x:Name="ResetLootDataButton" Content="Verileri Wiki'den Yeniden Çek" 
+                                        Click="ResetLootDataButton_Click" Height="35" Width="250" HorizontalAlignment="Left"
+                                        Background="#3A1A1A" Foreground="#E0A0A0" BorderBrush="#664444" BorderThickness="1" 
+                                        Cursor="Hand" FontWeight="SemiBold">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" 
+                                                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                                                CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#4A2A2A"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>

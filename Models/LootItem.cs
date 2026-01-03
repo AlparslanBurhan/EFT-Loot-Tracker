@@ -32,6 +32,20 @@ namespace EFTLootTracker.Models
         public string WikiUrl { get; set; } = string.Empty;
         public DateTime LastUpdated { get; set; }
 
+        private bool _isFound;
+        public bool IsFound
+        {
+            get => _isFound;
+            set
+            {
+                if (_isFound != value)
+                {
+                    _isFound = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         [JsonIgnore]
         public bool HasQuests => Quests?.Any() == true;
         [JsonIgnore]

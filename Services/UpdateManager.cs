@@ -37,32 +37,50 @@ namespace EFTLootTracker.Services
                                    (DateTime.Now - lastUpdate).TotalHours > 24;
 
                 if (needsUpdate)
-            {
-                OnStatusChanged?.Invoke("Loot verileri Wiki'den çekiliyor...");
-                var remoteItems = await _scraper.ScrapeAllItemsAsync();
-
-                if (remoteItems != null && remoteItems.Count > 0)
                 {
-                    OnStatusChanged?.Invoke($"Loot simgeleri indiriliyor... ({remoteItems.Count} öğe)");
-                    await _data.DownloadIconsAsync(remoteItems, (current, total) => {
-                        OnProgressChanged?.Invoke(current, total);
-                    });
-
-                    await _data.SaveItemsAsync(remoteItems);
-                    OnStatusChanged?.Invoke($"Loot verileri güncellendi ({remoteItems.Count} öğe)");
-                    return remoteItems;
+                    return await UpdateLootNowAsync();
                 }
-                else
-                {
-                    OnStatusChanged?.Invoke("Hata: Wiki'den loot verileri çekilemedi");
-                    return localItems;
-                }
-            }
 
-            OnStatusChanged?.Invoke($"Loot verileri yüklendi ({localItems.Count} öğe)");
-            return localItems;
+                OnStatusChanged?.Invoke($"Loot verileri yüklendi ({localItems.Count} öğe)");
+                return localItems;
             } finally {
                 _isUpdating = false;
+            }
+        }
+
+        public async Task<List<LootItem>> ForceUpdateLootDataAsync()
+        {
+            if (_isUpdating) return new List<LootItem>();
+            _isUpdating = true;
+
+            try {
+                _data.DeleteLootManifest();
+                return await UpdateLootNowAsync();
+            } finally {
+                _isUpdating = false;
+            }
+        }
+
+        private async Task<List<LootItem>> UpdateLootNowAsync()
+        {
+            OnStatusChanged?.Invoke("Loot verileri Wiki'den çekiliyor...");
+            var remoteItems = await _scraper.ScrapeAllItemsAsync();
+
+            if (remoteItems != null && remoteItems.Count > 0)
+            {
+                OnStatusChanged?.Invoke($"Loot simgeleri indiriliyor... ({remoteItems.Count} öğe)");
+                await _data.DownloadIconsAsync(remoteItems, (current, total) => {
+                    OnProgressChanged?.Invoke(current, total);
+                });
+
+                await _data.SaveItemsAsync(remoteItems);
+                OnStatusChanged?.Invoke($"Loot verileri güncellendi ({remoteItems.Count} öğe)");
+                return remoteItems;
+            }
+            else
+            {
+                OnStatusChanged?.Invoke("Hata: Wiki'den loot verileri çekilemedi");
+                return await _data.LoadItemsAsync();
             }
         }
 
@@ -88,6 +106,17 @@ namespace EFTLootTracker.Services
                 }
 
                 OnStatusChanged?.Invoke($"Collector verileri yüklendi ({localItems.Count} öğe)");
+                
+                // Apply saved status
+                var statuses = await _data.LoadCollectorStatusAsync();
+                foreach (var item in localItems)
+                {
+                    if (statuses.TryGetValue(item.Name, out bool isFound))
+                    {
+                        item.IsFound = isFound;
+                    }
+                }
+
                 return localItems;
             } finally {
                 _isUpdating = false;
@@ -100,6 +129,7 @@ namespace EFTLootTracker.Services
             _isUpdating = true;
 
             try {
+                _data.DeleteCollectorManifest();
                 return await UpdateCollectorNowAsync();
             } finally {
                 _isUpdating = false;
@@ -118,6 +148,16 @@ namespace EFTLootTracker.Services
                     OnProgressChanged?.Invoke(current, total);
                 });
 
+                // Apply saved status
+                var statuses = await _data.LoadCollectorStatusAsync();
+                foreach (var item in remoteItems)
+                {
+                    if (statuses.TryGetValue(item.Name, out bool isFound))
+                    {
+                        item.IsFound = isFound;
+                    }
+                }
+
                 await _data.SaveCollectorItemsAsync(remoteItems);
                 OnStatusChanged?.Invoke($"Collector verileri güncellendi ({remoteItems.Count} öğe)");
                 return remoteItems;
@@ -125,7 +165,16 @@ namespace EFTLootTracker.Services
             else
             {
                 OnStatusChanged?.Invoke("Hata: Collector verileri çekilemedi");
-                return await _data.LoadCollectorItemsAsync();
+                var localItems = await _data.LoadCollectorItemsAsync();
+                var statuses = await _data.LoadCollectorStatusAsync();
+                foreach (var item in localItems)
+                {
+                    if (statuses.TryGetValue(item.Name, out bool isFound))
+                    {
+                        item.IsFound = isFound;
+                    }
+                }
+                return localItems;
             }
         }
     }

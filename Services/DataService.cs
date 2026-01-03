@@ -14,6 +14,7 @@ namespace EFTLootTracker.Services
         private readonly string CacheFolder;
         private readonly string ManifestPath;
         private readonly string CollectorManifestPath;
+        private readonly string CollectorStatusPath;
         private readonly HttpClient _httpClient;
 
         public DataService()
@@ -27,6 +28,7 @@ namespace EFTLootTracker.Services
             CacheFolder = Path.Combine(appDataPath, "cache", "icons");
             ManifestPath = Path.Combine(DataFolder, "manifest.json");
             CollectorManifestPath = Path.Combine(DataFolder, "collector.json");
+            CollectorStatusPath = Path.Combine(DataFolder, "collector_status.json");
             
             // Klasörleri oluştur
             Directory.CreateDirectory(DataFolder);
@@ -48,6 +50,38 @@ namespace EFTLootTracker.Services
                 var json = JsonConvert.SerializeObject(items, Formatting.Indented);
                 await File.WriteAllTextAsync(CollectorManifestPath, json);
             } catch {
+            }
+        }
+
+        public async Task SaveCollectorStatusAsync(Dictionary<string, bool> status)
+        {
+            try {
+                var json = JsonConvert.SerializeObject(status, Formatting.Indented);
+                await File.WriteAllTextAsync(CollectorStatusPath, json);
+            } catch {
+            }
+        }
+
+        public void DeleteLootManifest()
+        {
+            try { if (File.Exists(ManifestPath)) File.Delete(ManifestPath); } catch { }
+        }
+
+        public void DeleteCollectorManifest()
+        {
+            try { if (File.Exists(CollectorManifestPath)) File.Delete(CollectorManifestPath); } catch { }
+        }
+
+        public async Task<Dictionary<string, bool>> LoadCollectorStatusAsync()
+        {
+            try {
+                if (!File.Exists(CollectorStatusPath))
+                    return new Dictionary<string, bool>();
+
+                var json = await File.ReadAllTextAsync(CollectorStatusPath);
+                return JsonConvert.DeserializeObject<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
+            } catch {
+                return new Dictionary<string, bool>();
             }
         }
 
