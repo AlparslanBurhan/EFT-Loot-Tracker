@@ -146,7 +146,7 @@ del ""%~f0""
         try
         {
             // Get the directory where the app is installed
-            var appDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var appDirectory = AppContext.BaseDirectory;
             if (string.IsNullOrEmpty(appDirectory)) return null;
 
             // Look for Inno Setup uninstaller (unins000.exe)
