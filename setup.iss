@@ -1,9 +1,9 @@
 ; EFT-Loot-Tracker Inno Setup Script
-; Versiyon 1.1.1
-; Tarih: 3 OCAK 2026
+; Versiyon 1.2.0
+; Tarih: 4 OCAK 2026
 
 #define MyAppName "EFT-Loot-Tracker"
-#define MyAppVersion "1.1.1"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Alparslan Burhan"
 #define MyAppExeName "EFTLootTracker.exe"
 #define MyAppYear "2026"

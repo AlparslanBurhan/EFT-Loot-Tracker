@@ -23,7 +23,8 @@ namespace EFTLootTracker.Services
             {
                 CookieContainer = _cookieContainer,
                 UseCookies = true,
-                AllowAutoRedirect = true
+                AllowAutoRedirect = true,
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.All
             };
             
             _httpClient = new HttpClient(handler);
@@ -44,32 +45,50 @@ namespace EFTLootTracker.Services
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
 
+                // Find all tables with wikitable class
                 var tables = doc.DocumentNode.SelectNodes("//table[contains(@class, 'wikitable')]");
                 if (tables == null)
                 {
-                    return new List<LootItem>();
+                    // If wikitable class is not found, try finding any table and log classes
+                    var allTables = doc.DocumentNode.SelectNodes("//table");
+                    string tableInfo = allTables == null ? "No tables found at all." : $"Found {allTables.Count} tables, but none with 'wikitable' class.";
+                    string snippet = html.Length > 300 ? html.Substring(0, 300) : html;
+                    
+                    throw new Exception($"Wiki page structure changed: {tableInfo}. HTML Length: {html.Length}. Snippet: {snippet}");
                 }
 
                 foreach (var table in tables)
                 {
-                    var rows = table.SelectNodes(".//tr");
-                    if (rows == null || rows.Count < 2) continue;
+                    // Look for rows directly in the table or in its tbody
+                    var rows = table.SelectNodes(".//tr"); 
+                    if (rows == null) continue;
 
                     string category = GetCategory(table);
 
                     foreach (var row in rows)
                     {
-                        var cells = row.SelectNodes(".//*[self::td or self::th]");
+                        // Get ONLY the top-level cells for this row to avoid picking up cells from nested tables
+                        var cells = row.SelectNodes("./td | ./th");
                         if (cells == null || cells.Count < 5) continue; 
 
-                        if (cells[0].InnerText.Contains("Icon") || cells[1].InnerText.Contains("Name")) continue;
+                        // Skip header rows by checking for header-like text
+                        string firstCellText = cells[0].InnerText.Trim();
+                        string secondCellText = cells[1].InnerText.Trim();
+                        if (firstCellText.Equals("Icon", StringComparison.OrdinalIgnoreCase) || 
+                            secondCellText.Equals("Name", StringComparison.OrdinalIgnoreCase)) continue;
 
                         ParseRow(cells, category, itemDict);
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                throw new Exception($"Wiki scraping failed: {ex.Message}", ex);
+            }
+
+            if (itemDict.Count == 0)
+            {
+                throw new Exception("Wiki scraper finished but found 0 items. The page structure might have changed significantly.");
             }
 
             return itemDict.Values.ToList();
@@ -242,20 +261,20 @@ namespace EFTLootTracker.Services
                     return items;
                 }
 
-                var rows = tableContainer.SelectNodes(".//tbody/tr");
-                if (rows == null || rows.Count == 0)
-                {
-                    return items;
-                }
+                var rows = tableContainer.SelectNodes(".//tr");
+                if (rows == null) return items;
 
+                // string category = "Collector"; // Unused
                 foreach (var row in rows)
                 {
                     try
                     {
-                        var cells = row.SelectNodes(".//td");
+                        var cells = row.SelectNodes("./td | ./th");
+                        if (cells == null || cells.Count < 4) continue;
+
                         // Skip header rows or rows with insufficient cells
                         // Collector table has 6 columns: checkbox, icon, name, amount, requirement, FIR
-                        if (cells == null || cells.Count < 5)
+                        if (cells.Count < 5)
                         {
                             continue;
                         }
@@ -332,9 +351,9 @@ namespace EFTLootTracker.Services
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Return empty list on error
+                throw new Exception($"Collector scraping failed: {ex.Message}", ex);
             }
 
             return items;

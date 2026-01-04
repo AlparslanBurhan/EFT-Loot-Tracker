@@ -54,7 +54,8 @@ namespace EFTLootTracker.Services
             _isUpdating = true;
 
             try {
-                _data.DeleteLootManifest();
+                // DON'T delete manifest here. UpdateLootNowAsync will overwrite it on success.
+                // If it fails, we keep the old data as a fallback.
                 return await UpdateLootNowAsync();
             } finally {
                 _isUpdating = false;
@@ -129,7 +130,7 @@ namespace EFTLootTracker.Services
             _isUpdating = true;
 
             try {
-                _data.DeleteCollectorManifest();
+                // DON'T delete manifest here. UpdateCollectorNowAsync will overwrite it on success.
                 return await UpdateCollectorNowAsync();
             } finally {
                 _isUpdating = false;

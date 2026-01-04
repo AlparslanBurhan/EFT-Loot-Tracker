@@ -343,9 +343,9 @@ public partial class MainWindow : Window
             catch (Exception ex)
             {
                 UpdateProgress.Visibility = Visibility.Collapsed;
-                StatusText.Text = "Hata: " + ex.Message;
-                StatusText.Foreground = System.Windows.Media.Brushes.Red;
-                MessageBox.Show("Hata oluştu: " + ex.Message, "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusText.Text = "Hata oluştu, eski veriler korunuyor.";
+                StatusText.Foreground = System.Windows.Media.Brushes.Orange;
+                MessageBox.Show("Wiki'den veri çekilirken bir hata oluştu. İnternet bağlantınızı kontrol edin. Mevcut verileriniz silinmedi.\n\nDetay: " + ex.Message, "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
